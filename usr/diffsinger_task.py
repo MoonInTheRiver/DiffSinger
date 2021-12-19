@@ -60,7 +60,7 @@ class DiffSingerTask(DiffSpeechTask):
         outputs = utils.tensors_to_scalars(outputs)
         if batch_idx < hparams['num_valid_plots']:
             model_out = self.model(
-                txt_tokens, spk_embed=spk_embed, mel2ph=mel2ph, f0=f0, uv=uv, energy=energy, ref_mels=target, infer=True)
+                txt_tokens, spk_embed=spk_embed, mel2ph=mel2ph, f0=f0, uv=uv, energy=energy, ref_mels=None, infer=True)
             gt_f0 = denorm_f0(sample['f0'], sample['uv'], hparams)
             self.plot_wav(batch_idx, sample['mels'], model_out['mel_out'], is_mel=True, gt_f0=gt_f0, f0=model_out.get('f0_denorm'))
             self.plot_mel(batch_idx, sample['mels'], model_out['mel_out'], name=f'diffmel_{batch_idx}')
@@ -164,7 +164,7 @@ class DiffSingerOfflineTask(DiffSingerTask):
             fs2_mel = sample['fs2_mels']
             model_out = self.model(
                 txt_tokens, spk_embed=spk_embed, mel2ph=mel2ph, f0=f0, uv=uv, energy=energy,
-                ref_mels=[target, fs2_mel], infer=True)
+                ref_mels=[None, fs2_mel], infer=True)
             gt_f0 = denorm_f0(sample['f0'], sample['uv'], hparams)
             self.plot_wav(batch_idx, sample['mels'], model_out['mel_out'], is_mel=True, gt_f0=gt_f0, f0=model_out.get('f0_denorm'))
             self.plot_mel(batch_idx, sample['mels'], model_out['mel_out'], name=f'diffmel_{batch_idx}')
@@ -176,14 +176,7 @@ class DiffSingerOfflineTask(DiffSingerTask):
         txt_tokens = sample['txt_tokens']
         energy = sample['energy']
         if hparams['profile_infer']:
-            print(sample['item_name'])
-            if batch_idx % 10 == 0:
-                torch.cuda.empty_cache()
-            mel2ph, uv, f0 = sample['mel2ph'], sample['uv'], sample['f0']
-            target = sample['mels']  # [B, T_s, 80]
-            with utils.Timer('diffsinger', print_time=True):
-                self.model(
-                    txt_tokens, mel2ph=mel2ph, spk_embed=spk_embed, f0=f0, uv=uv, ref_mels=target, infer=True)
+            pass
         else:
             mel2ph, uv, f0 = None, None, None
             if hparams['use_gt_dur']:

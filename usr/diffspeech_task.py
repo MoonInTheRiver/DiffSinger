@@ -116,14 +116,7 @@ class DiffSpeechTask(DiffFsTask):
         mel2ph, uv, f0 = None, None, None
         energy = sample['energy']
         if hparams['profile_infer']:
-            print(sample['item_name'])
-            if batch_idx % 10 == 0:
-                torch.cuda.empty_cache()
-            mel2ph, uv, f0 = sample['mel2ph'], sample['uv'], sample['f0']
-            target = sample['mels']  # [B, T_s, 80]
-            with utils.Timer('diffspeech', print_time=True):
-                self.model(
-                    txt_tokens, mel2ph=mel2ph, spk_embed=spk_embed, f0=f0, uv=uv, ref_mels=target, infer=True)
+            pass
         else:
             mel2ph, uv, f0 = None, None, None
             if hparams['use_gt_dur']:
@@ -134,7 +127,7 @@ class DiffSpeechTask(DiffFsTask):
             target = sample['mels']  # [B, T_s, 80]
             # fs2_mel = sample['fs2_mels']
             outputs = self.model(
-                txt_tokens, spk_embed=spk_embed, mel2ph=mel2ph, f0=f0, uv=uv, ref_mels=target, energy=energy, infer=True)
+                txt_tokens, spk_embed=spk_embed, mel2ph=mel2ph, f0=f0, uv=uv, ref_mels=None, energy=energy, infer=True)
             sample['outputs'] = self.model.out2mel(outputs['mel_out'])
             sample['mel2ph_pred'] = outputs['mel2ph']
 

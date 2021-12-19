@@ -25,7 +25,7 @@ sort_by_len: true
 #########
 load_ckpt: ''
 save_ckpt: true
-save_best: true
+save_best: false
 num_ckpt_keep: 3
 clip_grad_norm: 0
 accumulate_grad_batches: 1

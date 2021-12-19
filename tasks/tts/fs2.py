@@ -283,12 +283,7 @@ class FastSpeech2Task(TtsTask):
         mel2ph, uv, f0 = None, None, None
         ref_mels = None
         if hparams['profile_infer']:
-            if batch_idx % 10 == 0:
-                torch.cuda.empty_cache()
-            mel2ph, uv, f0 = sample['mel2ph'], sample['uv'], sample['f0']
-            with utils.Timer('fs', print_time=True):
-                self.model(
-                    txt_tokens, mel2ph=mel2ph, spk_embed=spk_embed, f0=f0, uv=uv, ref_mels=ref_mels, infer=True)
+            pass
         else:
             if hparams['use_gt_dur']:
                 mel2ph = sample['mel2ph']
