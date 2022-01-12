@@ -25,7 +25,6 @@ g2p-en==2.1.0
 g2pM==0.1.2.5
 google-auth==1.24.0
 google-auth-oauthlib==0.4.2
-googleads==3.8.0
 grpcio==1.34.0
 h5py==3.1.0
 horology==1.1.0
@@ -79,7 +78,6 @@ pyloudnorm==0.1.0
 pyparsing==2.4.7
 pypinyin==0.39.0
 PySocks==1.7.1
-pysptk==0.1.18
 python-dateutil==2.8.1
 python-Levenshtein==0.12.0
 pytorch-lightning==0.7.1
@@ -99,7 +97,6 @@ scipy==1.5.4
 six==1.15.0
 SoundFile==0.10.3.post1
 stopit==1.1.1
-suds-jurko==0.6
 tensorboard==2.4.0
 tensorboard-plugin-wit==1.7.0
 tensorboardX==2.1
@@ -118,3 +115,4 @@ wcwidth==0.2.5
 webencodings==0.5.1
 webrtcvad==2.0.10
 Werkzeug==1.0.1
+pretty-midi==0.2.9

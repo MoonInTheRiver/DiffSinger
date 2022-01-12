@@ -106,40 +106,6 @@ class DiffSpeechTask(DiffFsTask):
             self.plot_mel(batch_idx, sample['mels'], model_out['mel_out'])
         return outputs
 
-
-    ############
-    # infer
-    ############
-    def test_step(self, sample, batch_idx):
-        spk_embed = sample.get('spk_embed') if not hparams['use_spk_id'] else sample.get('spk_ids')
-        txt_tokens = sample['txt_tokens']
-        mel2ph, uv, f0 = None, None, None
-        energy = sample['energy']
-        if hparams['profile_infer']:
-            pass
-        else:
-            mel2ph, uv, f0 = None, None, None
-            if hparams['use_gt_dur']:
-                mel2ph = sample['mel2ph']
-            if hparams['use_gt_f0']:
-                f0 = sample['f0']
-                uv = sample['uv']
-            target = sample['mels']  # [B, T_s, 80]
-            # fs2_mel = sample['fs2_mels']
-            outputs = self.model(
-                txt_tokens, spk_embed=spk_embed, mel2ph=mel2ph, f0=f0, uv=uv, ref_mels=None, energy=energy, infer=True)
-            sample['outputs'] = self.model.out2mel(outputs['mel_out'])
-            sample['mel2ph_pred'] = outputs['mel2ph']
-
-            if hparams['use_pitch_embed']:
-                if hparams['pitch_type'] == 'ph':
-                    sample['f0'] = self.expand_f0_ph(sample['f0'], sample['mel2ph'])
-                    sample['f0_pred'] = self.expand_f0_ph(outputs['pitch_pred'][:, :, 0], outputs['mel2ph'])
-                else:
-                    sample['f0'] = denorm_f0(sample['f0'], sample['uv'], hparams)
-                    sample['f0_pred'] = outputs.get('f0_denorm')
-            return self.after_infer(sample)
-
     ############
     # validation plots
     ############

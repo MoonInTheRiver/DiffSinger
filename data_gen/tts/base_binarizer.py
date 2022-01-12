@@ -41,8 +41,6 @@ class BaseBinarizer:
             self.meta_df = pd.read_csv(f"{processed_data_dir}/metadata_phone.csv", dtype=str)
             for r_idx, r in self.meta_df.iterrows():
                 item_name = raw_item_name = r['item_name']
-                # if not 'xiaoma#0514#女_2_4' in item_name:
-                #     continue
                 if len(self.processed_data_dirs) > 1:
                     item_name = f'ds{ds_id}_{item_name}'
                 self.item2txt[item_name] = r['txt']
@@ -160,7 +158,10 @@ class BaseBinarizer:
 
     @classmethod
     def process_item(cls, item_name, ph, txt, tg_fn, wav_fn, spk_id, encoder, binarization_args):
-        wav, mel = VOCODERS[hparams['vocoder']].wav2spec(wav_fn)
+        if hparams['vocoder'] in VOCODERS:
+            wav, mel = VOCODERS[hparams['vocoder']].wav2spec(wav_fn)
+        else:
+            wav, mel = VOCODERS[hparams['vocoder'].split('.')[-1]].wav2spec(wav_fn)
         res = {
             'item_name': item_name, 'txt': txt, 'ph': ph, 'mel': mel, 'wav': wav, 'wav_fn': wav_fn,
             'sec': len(wav) / hparams['audio_sample_rate'], 'len': mel.shape[0], 'spk_id': spk_id

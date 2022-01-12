@@ -5,6 +5,7 @@ import matplotlib
 from utils.pl_utils import data_loader
 from utils.training_utils import RSQRTSchedule
 from vocoders.base_vocoder import get_vocoder_cls, BaseVocoder
+from modules.fastspeech.pe import PitchExtractor
 
 matplotlib.use('Agg')
 import os
@@ -35,6 +36,15 @@ class TtsTask(BaseTask):
         self.saving_results_futures = None
         self.stats = {}
         super().__init__(*args, **kwargs)
+
+    def build_scheduler(self, optimizer):
+        return RSQRTSchedule(optimizer)
+
+    def build_optimizer(self, model):
+        self.optimizer = optimizer = torch.optim.AdamW(
+            model.parameters(),
+            lr=hparams['lr'])
+        return optimizer
 
     def build_dataloader(self, dataset, shuffle, max_tokens=None, max_sentences=None,
                          required_batch_size_multiple=-1, endless=False, batch_by_size=True):
@@ -98,13 +108,24 @@ class TtsTask(BaseTask):
         self.saving_result_pool = Pool(8)
         self.saving_results_futures = []
         self.vocoder: BaseVocoder = get_vocoder_cls(hparams)()
-
+        if hparams.get('pe_enable') is not None and hparams['pe_enable']:
+            self.pe = PitchExtractor().cuda()
+            utils.load_ckpt(self.pe, hparams['pe_ckpt'], 'model', strict=True)
+            self.pe.eval()
     def test_end(self, outputs):
         self.saving_result_pool.close()
         [f.get() for f in tqdm(self.saving_results_futures)]
         self.saving_result_pool.join()
         return {}
 
+    ##########
+    # utils
+    ##########
+    def weights_nonzero_speech(self, target):
+        # target : B x T x mel
+        # Assign weight 1.0 to all labels except for padding (id=0).
+        dim = target.size(-1)
+        return target.abs().sum(-1, keepdim=True).ne(0).float().repeat(1, 1, dim)
 
 if __name__ == '__main__':
     TtsTask.start()

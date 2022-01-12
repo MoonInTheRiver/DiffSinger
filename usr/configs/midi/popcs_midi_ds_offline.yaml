@@ -1,0 +1,13 @@
+base_config:
+  - usr/configs/popcs_ds_beta6.yaml
+
+binarizer_cls: data_gen.singing.binarize.MidiSingingBinarizer
+binary_data_dir: 'data/binary/popcs-midi'
+pe_enable: true
+pe_ckpt: 'checkpoints/0102_xiaoma_pe'
+
+fs2_ckpt: 'checkpoints/popcs_fs2_midi_1231/model_ckpt_steps_320000.ckpt'  #
+num_valid_plots: 0
+task_cls: usr.diffsinger_task.DiffSingerOfflineTask
+
+max_updates: 320000

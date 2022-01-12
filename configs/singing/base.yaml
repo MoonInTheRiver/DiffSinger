@@ -17,7 +17,7 @@ pre_align_args:
 hop_size: 128            # Hop size.
 fft_size: 512           # FFT size.
 win_size: 512           # FFT size.
-max_frames: 2400
+max_frames: 5000
 fmin: 50                 # Minimum freq in mel basis calculation.
 fmax: 11025               # Maximum frequency in mel basis calculation.
 pitch_type: frame

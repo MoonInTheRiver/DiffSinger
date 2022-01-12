@@ -44,7 +44,6 @@ pydub==0.25.1
 pyloudnorm==0.1.0
 pyparsing==2.4.7
 pypinyin==0.43.0
-pysptk==0.1.18
 python-dateutil==2.8.2
 pytorch-lightning==0.7.1
 pytorch-ssim==0.1

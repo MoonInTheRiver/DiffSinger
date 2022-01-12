@@ -15,11 +15,17 @@ binarization_args:
   with_wav: true
   with_spk_embed: false
   with_align: true
-raw_data_dir: 'xxx'
-processed_data_dir: 'xxx'
-binary_data_dir: 'xxx'
+raw_data_dir: 'data/raw/popcs'
+processed_data_dir: 'data/processed/popcs'
+binary_data_dir: 'data/binary/popcs-pmf0'
 num_spk: 1
-
+datasets: [
+  'popcs',
+]
+test_prefixes: [
+  'popcs-说散就散',
+  'popcs-隐形的翅膀',
+]
 
 spec_min: [-6.8276, -7.0270, -6.8142, -7.1429, -7.6669, -7.6000, -7.1148, -6.9640,
            -6.8414, -6.6596, -6.6880, -6.7439, -6.7986, -7.4940, -7.7845, -7.6586,
@@ -60,5 +66,5 @@ diff_loss_type: l1
 diff_decoder_type: 'wavenet'
 schedule_type: 'linear'
 max_beta: 0.06
-fs2_ckpt: checkpoints/fs2_2_4_24k_1/model_ckpt_steps_150000.ckpt
+fs2_ckpt: '' #checkpoints/fs2_2_4_24k_1/model_ckpt_steps_150000.ckpt
 use_nsf: true

@@ -24,7 +24,7 @@ import torch.nn.functional as F
 import utils
 import torch.distributions
 import numpy as np
-
+from modules.commons.ssim import ssim
 
 class FastSpeech2Task(TtsTask):
     def __init__(self):
@@ -86,8 +86,8 @@ class FastSpeech2Task(TtsTask):
         outputs['nsamples'] = sample['nsamples']
         mel_out = self.model.out2mel(model_out['mel_out'])
         outputs = utils.tensors_to_scalars(outputs)
-        if sample['mels'].shape[0] == 1:
-            self.add_laplace_var(mel_out, sample['mels'], outputs)
+        # if sample['mels'].shape[0] == 1:
+        #     self.add_laplace_var(mel_out, sample['mels'], outputs)
         if batch_idx < hparams['num_valid_plots']:
             self.plot_mel(batch_idx, sample['mels'], mel_out)
             self.plot_dur(batch_idx, sample, model_out)
@@ -109,11 +109,71 @@ class FastSpeech2Task(TtsTask):
         return {k: round(v.avg, 4) for k, v in all_losses_meter.items()}
 
     def run_model(self, model, sample, return_output=False):
-        return NotImplementedError
+        txt_tokens = sample['txt_tokens']  # [B, T_t]
+        target = sample['mels']  # [B, T_s, 80]
+        mel2ph = sample['mel2ph']  # [B, T_s]
+        f0 = sample['f0']
+        uv = sample['uv']
+        energy = sample['energy']
+        spk_embed = sample.get('spk_embed') if not hparams['use_spk_id'] else sample.get('spk_ids')
+        if hparams['pitch_type'] == 'cwt':
+            cwt_spec = sample[f'cwt_spec']
+            f0_mean = sample['f0_mean']
+            f0_std = sample['f0_std']
+            sample['f0_cwt'] = f0 = model.cwt2f0_norm(cwt_spec, f0_mean, f0_std, mel2ph)
+
+        output = model(txt_tokens, mel2ph=mel2ph, spk_embed=spk_embed,
+                       ref_mels=target, f0=f0, uv=uv, energy=energy, infer=False)
+
+        losses = {}
+        self.add_mel_loss(output['mel_out'], target, losses)
+        self.add_dur_loss(output['dur'], mel2ph, txt_tokens, losses=losses)
+        if hparams['use_pitch_embed']:
+            self.add_pitch_loss(output, sample, losses)
+        if hparams['use_energy_embed']:
+            self.add_energy_loss(output['energy_pred'], energy, losses)
+        if not return_output:
+            return losses
+        else:
+            return losses, output
 
     ############
     # losses
     ############
+    def add_mel_loss(self, mel_out, target, losses, postfix='', mel_mix_loss=None):
+        if mel_mix_loss is None:
+            for loss_name, lbd in self.loss_and_lambda.items():
+                if 'l1' == loss_name:
+                    l = self.l1_loss(mel_out, target)
+                elif 'mse' == loss_name:
+                    raise NotImplementedError
+                elif 'ssim' == loss_name:
+                    l = self.ssim_loss(mel_out, target)
+                elif 'gdl' == loss_name:
+                    raise NotImplementedError
+                losses[f'{loss_name}{postfix}'] = l * lbd
+        else:
+            raise NotImplementedError
+
+    def l1_loss(self, decoder_output, target):
+        # decoder_output : B x T x n_mel
+        # target : B x T x n_mel
+        l1_loss = F.l1_loss(decoder_output, target, reduction='none')
+        weights = self.weights_nonzero_speech(target)
+        l1_loss = (l1_loss * weights).sum() / weights.sum()
+        return l1_loss
+
+    def ssim_loss(self, decoder_output, target, bias=6.0):
+        # decoder_output : B x T x n_mel
+        # target : B x T x n_mel
+        assert decoder_output.shape == target.shape
+        weights = self.weights_nonzero_speech(target)
+        decoder_output = decoder_output[:, None] + bias
+        target = target[:, None] + bias
+        ssim_loss = 1 - ssim(decoder_output, target, size_average=False)
+        ssim_loss = (ssim_loss * weights).sum() / weights.sum()
+        return ssim_loss
+
     def add_dur_loss(self, dur_pred, mel2ph, txt_tokens, losses=None):
         """
 
@@ -294,13 +354,12 @@ class FastSpeech2Task(TtsTask):
                 txt_tokens, spk_embed=spk_embed, mel2ph=mel2ph, f0=f0, uv=uv, ref_mels=ref_mels, infer=True)
             sample['outputs'] = self.model.out2mel(outputs['mel_out'])
             sample['mel2ph_pred'] = outputs['mel2ph']
-            if hparams['use_pitch_embed']:
-                if hparams['pitch_type'] == 'ph':
-                    sample['f0'] = self.expand_f0_ph(sample['f0'], sample['mel2ph'])
-                    sample['f0_pred'] = self.expand_f0_ph(outputs['pitch_pred'][:, :, 0], outputs['mel2ph'])
-                else:
-                    sample['f0'] = denorm_f0(sample['f0'], sample['uv'], hparams)
-                    sample['f0_pred'] = outputs.get('f0_denorm')
+            if hparams.get('pe_enable') is not None and hparams['pe_enable']:
+                sample['f0'] = self.pe(sample['mels'])['f0_denorm_pred']  # pe predict from GT mel
+                sample['f0_pred'] = self.pe(sample['outputs'])['f0_denorm_pred']  # pe predict from Pred mel
+            else:
+                sample['f0'] = denorm_f0(sample['f0'], sample['uv'], hparams)
+                sample['f0_pred'] = outputs.get('f0_denorm')
             return self.after_infer(sample)
 
     def after_infer(self, predictions):
@@ -353,7 +412,8 @@ class FastSpeech2Task(TtsTask):
                 os.makedirs(gen_dir, exist_ok=True)
                 os.makedirs(f'{gen_dir}/wavs', exist_ok=True)
                 os.makedirs(f'{gen_dir}/plot', exist_ok=True)
-                os.makedirs(f'{gen_dir}/mels_npy', exist_ok=True)
+                os.makedirs(os.path.join(hparams['work_dir'], 'P_mels_npy'), exist_ok=True)
+                os.makedirs(os.path.join(hparams['work_dir'], 'G_mels_npy'), exist_ok=True)
                 self.saving_results_futures.append(
                     self.saving_result_pool.apply_async(self.save_result, args=[
                         wav_pred, mel_pred, 'P', item_name, text, gen_dir, str_phs, mel2ph_pred]))
@@ -391,6 +451,7 @@ class FastSpeech2Task(TtsTask):
 
         if text is not None:
             base_fn += text
+        np.save(os.path.join(hparams['work_dir'], f'{prefix}_mels_npy', item_name), mel)
         audio.save_wav(wav_out, f'{gen_dir}/wavs/{base_fn}.wav', hparams['audio_sample_rate'],
                        norm=hparams['out_wav_norm'])
         fig = plt.figure(figsize=(14, 10))
