@@ -49,10 +49,10 @@ spec_max: [ 0.2645,  0.0583, -0.2344, -0.0184,  0.1227,  0.1533,  0.1103,  0.121
             -0.9219, -0.8801, -0.9298, -0.9009, -0.9604, -1.0537, -1.0781, -1.3766]
 
 task_cls: usr.diffsinger_task.DiffSingerTask
-vocoder: usr.singingvocoder.highgan.HighGAN
-vocoder_ckpt: checkpoints/h_2_model/checkpoint-530000steps.pkl
-#vocoder: vocoders.hifigan.HifiGAN
-#vocoder_ckpt: checkpoints/1212_hifigan_zh_en_nsf_24k
+#vocoder: usr.singingvocoder.highgan.HighGAN
+#vocoder_ckpt: checkpoints/h_2_model/checkpoint-530000steps.pkl
+vocoder: vocoders.hifigan.HifiGAN
+vocoder_ckpt: checkpoints/0109_hifigan_bigpopcs_hop128
 
 pitch_extractor: 'parselmouth'
 # config for experiments
@@ -66,5 +66,5 @@ diff_loss_type: l1
 diff_decoder_type: 'wavenet'
 schedule_type: 'linear'
 max_beta: 0.06
-fs2_ckpt: '' #checkpoints/fs2_2_4_24k_1/model_ckpt_steps_150000.ckpt
+fs2_ckpt: ''
 use_nsf: true

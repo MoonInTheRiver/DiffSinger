@@ -2,7 +2,4 @@
 *.pyc
 __pycache__/
 *.sh
-watch_data.py
-read_data.py
-fmcd.py
-nmcd.py
+local_tools/
