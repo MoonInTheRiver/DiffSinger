@@ -34,7 +34,7 @@ or pip install -r requirements_3090.txt   (GPU 3090, CUDA 11.4)
 
 a) Download and extract the [LJ Speech dataset](https://keithito.com/LJ-Speech-Dataset/), then create a link to the dataset folder: `ln -s /xxx/LJSpeech-1.1/ data/raw/`
 
-b) Download and Unzip the [ground-truth duration](https://drive.google.com/file/d/1SqwIISwaBZDiCW1MHTHx-MKX6_NQJ_f4/view?usp=sharing) extracted by [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/releases/download/v1.0.1/montreal-forced-aligner_linux.tar.gz):  `tar -xvf mfa_outputs.tar; mv mfa_outputs data/processed/ljspeech/`
+b) Download and Unzip the [ground-truth duration](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pre-release/mfa_outputs.tar) extracted by [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/releases/download/v1.0.1/montreal-forced-aligner_linux.tar.gz):  `tar -xvf mfa_outputs.tar; mv mfa_outputs data/processed/ljspeech/`
 
 c) Run the following scripts to pack the dataset for training/inference.
 
@@ -59,9 +59,9 @@ CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/lj_ds_beta6.yaml
 ```
 
 We also provide:
- - the pre-trained model of [DiffSpeech](https://drive.google.com/file/d/1AHRuNS379v2_lNuz4-Mjlpii7TZsfs3f/view?usp=sharing);
- - the pre-trained model of [HifiGAN](https://drive.google.com/file/d/1Z3DJ9fvvzIci9DAf8jwchQs-Ulgpx6l8/view?usp=sharing) vocoder;
- - the individual pre-trained model of [FastSpeech 2](https://drive.google.com/file/d/1Zp45YjKkkv5vQSA7woHIqEggfyLqQdqs/view?usp=sharing) for the shallow diffusion mechanism in DiffSpeech;
+ - the pre-trained model of [DiffSpeech](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pre-release/lj_ds_beta6_1213.zip);
+ - the pre-trained model of [HifiGAN](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pre-release/0414_hifi_lj_1.zip) vocoder;
+ - the individual pre-trained model of [FastSpeech 2](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pre-release/fs2_lj_1.zip) for the shallow diffusion mechanism in DiffSpeech;
  
 Remember to put the pre-trained models in `checkpoints` directory.
 
@@ -72,6 +72,7 @@ About the determination of 'k' in shallow diffusion: We recommend the trick intr
 
 ### 0. Data Acquirement
 - See in [apply_form](https://github.com/MoonInTheRiver/DiffSinger/blob/master/resources/apply_form.md).
+- Dataset [preview](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pre-release/popcs_preview.zip).
 
 ### 1. Data Preparation
 a) Download and extract PopCS, then create a link to the dataset folder: `ln -s /xxx/popcs/ data/processed/`
@@ -96,9 +97,9 @@ CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/popcs_ds_beta6_o
 ```
 
 We also provide:
- - the pre-trained model of [DiffSinger](https://drive.google.com/file/d/1QEXcvhhiUiHEK2ItXZ8EDHwv8bawiaIX/view?usp=sharing);
- - the pre-trained model of [FFT-Singer](https://drive.google.com/file/d/1XRCdkI8B-DkRe8NfUJqgSjM-9c0gXQvJ/view?usp=sharing) for the shallow diffusion mechanism in DiffSinger;
- - the pre-trained model of [HifiGAN-Singing](https://drive.google.com/file/d/1Z9bH3vorM34gBbjBlGGWWGVl4PwYy3YY/view?usp=sharing) which is specially designed for SVS with NSF mechanism. 
+ - the pre-trained model of [DiffSinger](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pre-release/popcs_ds_beta6_offline_pmf0_1230.zip);
+ - the pre-trained model of [FFT-Singer](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pre-release/popcs_fs2_pmf0_1230.zip) for the shallow diffusion mechanism in DiffSinger;
+ - the pre-trained model of [HifiGAN-Singing](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pre-release/0109_hifigan_bigpopcs_hop128.zip) which is specially designed for SVS with NSF mechanism. 
 
 *Note that:* 
 
