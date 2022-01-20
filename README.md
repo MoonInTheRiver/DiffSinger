@@ -86,11 +86,14 @@ CUDA_VISIBLE_DEVICES=0 python data_gen/tts/bin/binarize.py --config usr/configs/
 
 ### 2. Training Example
 ```sh
+# first run fs2 infer;
+CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/popcs_fs2.yaml --exp_name popcs_fs2_pmf0_1230 --reset --infer 
+# second run ds train;
 CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/popcs_ds_beta6_offline.yaml --exp_name popcs_exp2 --reset
 ```
 ### 3. Inference Example
 ```sh
-# first run fs2 infer;
+# first run fs2 infer; if you have already run 'fs2 infer' in above steps, you can skip 'fs2 infer'.
 CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/popcs_fs2.yaml --exp_name popcs_fs2_pmf0_1230 --reset --infer 
 # second run ds infer;
 CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/popcs_ds_beta6_offline.yaml --exp_name popcs_exp2 --reset --infer
@@ -104,7 +107,7 @@ We also provide:
 *Note that:* 
 
 - *the original PWG version vocoder in the paper we used has been put into commercial use, so we provide this HifiGAN version vocoder as a substitute.*
-- *we assume the ground-truth F0 to be given as the pitch information following [1][2][3] (because we do not have manually labeled MIDI). If you want to conduct experiments on MIDI data (with external F0 predictor or joint prediction with spectrograms), you may turn on the pe_enable option. Otherwise, the vocoder with NSF could not work well.*
+- *we assume the ground-truth F0 to be given as the pitch information following [1][2][3]. If you want to conduct experiments on MIDI data (with external F0 predictor or joint prediction with spectrograms), you may turn on the pe_enable option. Otherwise, the vocoder with NSF could not work well.*
 
 [1] Adversarially trained multi-singer sequence-to-sequence singing synthesizer. Interspeech 2020.
 
