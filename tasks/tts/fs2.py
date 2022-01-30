@@ -350,8 +350,14 @@ class FastSpeech2Task(TtsTask):
             if hparams['use_gt_f0']:
                 f0 = sample['f0']
                 uv = sample['uv']
-            outputs = self.model(
-                txt_tokens, spk_embed=spk_embed, mel2ph=mel2ph, f0=f0, uv=uv, ref_mels=ref_mels, infer=True)
+                print('Here using gt f0!!')
+            if hparams['use_midi']:
+                outputs = self.model(
+                    txt_tokens, spk_embed=spk_embed, mel2ph=mel2ph, f0=f0, uv=uv, ref_mels=ref_mels, infer=True,
+                    pitch_midi=sample['pitch_midi'], midi_dur=sample.get('midi_dur'), is_slur=sample.get('is_slur'))
+            else:
+                outputs = self.model(
+                    txt_tokens, spk_embed=spk_embed, mel2ph=mel2ph, f0=f0, uv=uv, ref_mels=ref_mels, infer=True)
             sample['outputs'] = self.model.out2mel(outputs['mel_out'])
             sample['mel2ph_pred'] = outputs['mel2ph']
             if hparams.get('pe_enable') is not None and hparams['pe_enable']:
@@ -416,20 +422,25 @@ class FastSpeech2Task(TtsTask):
                 os.makedirs(os.path.join(hparams['work_dir'], 'G_mels_npy'), exist_ok=True)
                 self.saving_results_futures.append(
                     self.saving_result_pool.apply_async(self.save_result, args=[
-                        wav_pred, mel_pred, 'P', item_name, text, gen_dir, str_phs, mel2ph_pred]))
+                        wav_pred, mel_pred, 'P', item_name, text, gen_dir, str_phs, mel2ph_pred, f0_gt, f0_pred]))
 
                 if mel_gt is not None and hparams['save_gt']:
                     wav_gt = self.vocoder.spec2wav(mel_gt, f0=f0_gt)
                     self.saving_results_futures.append(
                         self.saving_result_pool.apply_async(self.save_result, args=[
-                            wav_gt, mel_gt, 'G', item_name, text, gen_dir, str_phs, mel2ph_gt]))
+                            wav_gt, mel_gt, 'G', item_name, text, gen_dir, str_phs, mel2ph_gt, f0_gt, f0_pred]))
                     if hparams['save_f0']:
                         import matplotlib.pyplot as plt
                         f0_pred_, _ = get_pitch(wav_pred, mel_pred, hparams)
                         f0_gt_, _ = get_pitch(wav_gt, mel_gt, hparams)
                         fig = plt.figure()
-                        plt.plot(f0_pred_, label=r'$\hat{f_0}$')
-                        plt.plot(f0_gt_, label=r'$f_0$')
+                        plt.plot(f0_pred_, label=r'$f0_P$')
+                        plt.plot(f0_gt_, label=r'$f0_G$')
+                        if hparams.get('pe_enable') is not None and hparams['pe_enable']:
+                            # f0_midi = prediction.get("f0_midi")
+                            # f0_midi = f0_midi[mel_gt_mask]
+                            # plt.plot(f0_midi, label=r'$f0_M$')
+                            pass
                         plt.legend()
                         plt.tight_layout()
                         plt.savefig(f'{gen_dir}/plot/[F0][{item_name}]{text}.png', format='png')
@@ -446,11 +457,12 @@ class FastSpeech2Task(TtsTask):
         return {}
 
     @staticmethod
-    def save_result(wav_out, mel, prefix, item_name, text, gen_dir, str_phs=None, mel2ph=None):
+    def save_result(wav_out, mel, prefix, item_name, text, gen_dir, str_phs=None, mel2ph=None, gt_f0=None, pred_f0=None):
         base_fn = f'[{item_name}][{prefix}]'
 
         if text is not None:
             base_fn += text
+        base_fn += ('-' + hparams['exp_name'])
         np.save(os.path.join(hparams['work_dir'], f'{prefix}_mels_npy', item_name), mel)
         audio.save_wav(wav_out, f'{gen_dir}/wavs/{base_fn}.wav', hparams['audio_sample_rate'],
                        norm=hparams['out_wav_norm'])
@@ -459,9 +471,15 @@ class FastSpeech2Task(TtsTask):
         spec_vmax = hparams['mel_vmax']
         heatmap = plt.pcolor(mel.T, vmin=spec_vmin, vmax=spec_vmax)
         fig.colorbar(heatmap)
-        f0, _ = get_pitch(wav_out, mel, hparams)
-        f0 = (f0 - 100) / (800 - 100) * 80 * (f0 > 0)
-        plt.plot(f0, c='white', linewidth=1, alpha=0.6)
+        if hparams.get('pe_enable') is not None and hparams['pe_enable']:
+            gt_f0 = (gt_f0 - 100) / (800 - 100) * 80 * (gt_f0 > 0)
+            pred_f0 = (pred_f0 - 100) / (800 - 100) * 80 * (pred_f0 > 0)
+            plt.plot(pred_f0, c='white', linewidth=1, alpha=0.6)
+            plt.plot(gt_f0, c='red', linewidth=1, alpha=0.6)
+        else:
+            f0, _ = get_pitch(wav_out, mel, hparams)
+            f0 = (f0 - 100) / (800 - 100) * 80 * (f0 > 0)
+            plt.plot(f0, c='white', linewidth=1, alpha=0.6)
         if mel2ph is not None and str_phs is not None:
             decoded_txt = str_phs.split(" ")
             dur = mel2ph_to_dur(torch.LongTensor(mel2ph)[None, :], len(decoded_txt))[0].numpy()

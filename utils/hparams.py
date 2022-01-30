@@ -115,4 +115,8 @@ def set_hparams(config='', exp_name='', hparams_str='', print_hparams=True, glob
         print("")
         global_print_hparams = False
     # print(hparams_.keys())
+    if hparams.get('exp_name') is None:
+        hparams['exp_name'] = args.exp_name
+    if hparams_.get('exp_name') is None:
+        hparams_['exp_name'] = args.exp_name
     return hparams_

@@ -1,5 +1,6 @@
 base_config:
   - configs/singing/fs2.yaml
+  - usr/configs/midi/cascade/opencs/opencpop_statis.yaml
 
 audio_sample_rate: 24000
 hop_size: 128            # Hop size.
@@ -13,22 +14,34 @@ binarization_args:
   with_wav: true
   with_spk_embed: false
   with_align: true
-raw_data_dir: 'data/raw/popcs'
-processed_data_dir: 'data/processed/popcs'
-binarizer_cls: data_gen.singing.binarize.MidiSingingBinarizer
-binary_data_dir: 'data/binary/popcs-midi'
+raw_data_dir: 'data/raw/opencpop/segments'
+processed_data_dir: 'xxx'
+binarizer_cls: data_gen.singing.binarize.OpencpopBinarizer
+
+
+binary_data_dir: 'data/binary/opencpop-midi-cascade'
+use_midi: true  #  for midi exp
+use_gt_f0: false  #  for midi exp
+lambda_f0: 1.0
+lambda_uv: 1.0
+#lambda_energy: 0.1
+#lambda_ph_dur: 1.0
+#lambda_sent_dur: 1.0
+#lambda_word_dur: 1.0
+predictor_grad: 0.1
 pe_enable: true
 pe_ckpt: 'checkpoints/0102_xiaoma_pe'
+
 num_spk: 1
-datasets: [
-  'popcs',
-]
 test_prefixes: [
-  'popcs-说散就散',
-  'popcs-隐形的翅膀',
+    '2044',
+    '2086',
+    '2092',
+    '2093',
+    '2100',
 ]
 
-task_cls: tasks.tts.fs2.FastSpeech2Task
+task_cls: usr.diffsinger_task.AuxDecoderMIDITask
 #vocoder: usr.singingvocoder.highgan.HighGAN
 #vocoder_ckpt: checkpoints/h_2_model/checkpoint-530000steps.pkl
 vocoder: vocoders.hifigan.HifiGAN
@@ -37,8 +50,9 @@ vocoder_ckpt: checkpoints/0109_hifigan_bigpopcs_hop128
 use_nsf: true
 
 # config for experiments
+max_frames: 5000
 max_tokens: 18000
 use_spk_embed: false
 num_valid_plots: 10
-max_updates: 320000
+max_updates: 160000
 save_gt: true

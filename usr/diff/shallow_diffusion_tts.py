@@ -11,6 +11,7 @@ from tqdm import tqdm
 from einops import rearrange
 
 from modules.fastspeech.fs2 import FastSpeech2
+from modules.diffsinger_midi.fs2 import FastSpeech2MIDI
 from utils.hparams import hparams
 
 
@@ -196,7 +197,10 @@ class GaussianDiffusion(nn.Module):
                  timesteps=1000, K_step=1000, loss_type=hparams.get('diff_loss_type', 'l1'), betas=None, spec_min=None, spec_max=None):
         super().__init__()
         self.denoise_fn = denoise_fn
-        self.fs2 = FastSpeech2(phone_encoder, out_dims)
+        if hparams['use_midi']:
+            self.fs2 = FastSpeech2MIDI(phone_encoder, out_dims)
+        else:
+            self.fs2 = FastSpeech2(phone_encoder, out_dims)
         self.mel_bins = out_dims
 
         if exists(betas):
@@ -311,10 +315,10 @@ class GaussianDiffusion(nn.Module):
         return loss
 
     def forward(self, txt_tokens, mel2ph=None, spk_embed=None,
-                ref_mels=None, f0=None, uv=None, energy=None, infer=False):
+                ref_mels=None, f0=None, uv=None, energy=None, infer=False, **kwargs):
         b, *_, device = *txt_tokens.shape, txt_tokens.device
         ret = self.fs2(txt_tokens, mel2ph, spk_embed, ref_mels, f0, uv, energy,
-                       skip_decoder=(not infer), infer=infer)
+                       skip_decoder=(not infer), infer=infer, **kwargs)
         cond = ret['decoder_inp'].transpose(1, 2)
 
         if not infer:
@@ -333,6 +337,10 @@ class GaussianDiffusion(nn.Module):
             fs2_mels = fs2_mels.transpose(1, 2)[:, None, :, :]
 
             x = self.q_sample(x_start=fs2_mels, t=torch.tensor([t - 1], device=device).long())
+            if hparams.get('gaussion_start') is not None and hparams['gaussion_start']:
+                print('===> gaussion start.')
+                shape = (cond.shape[0], 1, self.mel_bins, cond.shape[2])
+                x = torch.randn(shape, device=device)
             for i in tqdm(reversed(range(0, t)), desc='sample time step', total=t):
                 x = self.p_sample(x, torch.full((b,), i, device=device, dtype=torch.long), cond)
             x = x[:, 0].transpose(1, 2)
@@ -355,11 +363,11 @@ class GaussianDiffusion(nn.Module):
 
 class OfflineGaussianDiffusion(GaussianDiffusion):
     def forward(self, txt_tokens, mel2ph=None, spk_embed=None,
-                ref_mels=None, f0=None, uv=None, energy=None, infer=False):
+                ref_mels=None, f0=None, uv=None, energy=None, infer=False, **kwargs):
         b, *_, device = *txt_tokens.shape, txt_tokens.device
 
         ret = self.fs2(txt_tokens, mel2ph, spk_embed, ref_mels, f0, uv, energy,
-                       skip_decoder=True, infer=True)
+                       skip_decoder=True, infer=True, **kwargs)
         cond = ret['decoder_inp'].transpose(1, 2)
         fs2_mels = ref_mels[1]
         ref_mels = ref_mels[0]

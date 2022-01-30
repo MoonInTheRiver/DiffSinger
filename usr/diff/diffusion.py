@@ -11,6 +11,7 @@ from tqdm import tqdm
 from einops import rearrange
 
 from modules.fastspeech.fs2 import FastSpeech2
+from modules.diffsinger_midi.fs2 import FastSpeech2MIDI
 from utils.hparams import hparams
 
 
@@ -182,7 +183,10 @@ class GaussianDiffusion(nn.Module):
                  timesteps=1000, loss_type='l1', betas=None, spec_min=None, spec_max=None):
         super().__init__()
         self.denoise_fn = denoise_fn
-        self.fs2 = FastSpeech2(phone_encoder, out_dims)
+        if hparams['use_midi']:
+            self.fs2 = FastSpeech2MIDI(phone_encoder, out_dims)
+        else:
+            self.fs2 = FastSpeech2(phone_encoder, out_dims)
         self.fs2.decoder = None
         self.mel_bins = out_dims
 
