@@ -70,9 +70,6 @@ We also provide:
  
 Remember to put the pre-trained models in `checkpoints` directory.
 
-About the determination of 'k' in shallow diffusion: We recommend the trick introduced in Appendix B. We have already provided the proper 'k' for Ljspeech dataset in the config files.
-
-
 ## DiffSinger (SVS version)
 
 ### 0. Data Acquirement

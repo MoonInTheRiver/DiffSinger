@@ -351,7 +351,7 @@ class FastSpeech2Task(TtsTask):
                 f0 = sample['f0']
                 uv = sample['uv']
                 print('Here using gt f0!!')
-            if hparams['use_midi']:
+            if hparams.get('use_midi') is not None and hparams['use_midi']:
                 outputs = self.model(
                     txt_tokens, spk_embed=spk_embed, mel2ph=mel2ph, f0=f0, uv=uv, ref_mels=ref_mels, infer=True,
                     pitch_midi=sample['pitch_midi'], midi_dur=sample.get('midi_dur'), is_slur=sample.get('is_slur'))

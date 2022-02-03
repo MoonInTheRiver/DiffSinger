@@ -183,7 +183,7 @@ class GaussianDiffusion(nn.Module):
                  timesteps=1000, loss_type='l1', betas=None, spec_min=None, spec_max=None):
         super().__init__()
         self.denoise_fn = denoise_fn
-        if hparams['use_midi']:
+        if hparams.get('use_midi') is not None and hparams['use_midi']:
             self.fs2 = FastSpeech2MIDI(phone_encoder, out_dims)
         else:
             self.fs2 = FastSpeech2(phone_encoder, out_dims)

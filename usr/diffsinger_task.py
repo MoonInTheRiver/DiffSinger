@@ -342,7 +342,7 @@ class AuxDecoderMIDITask(FastSpeech2Task):
         self.dataset_cls = OpencpopDataset
 
     def build_tts_model(self):
-        if hparams['use_midi']:
+        if hparams.get('use_midi') is not None and hparams['use_midi']:
             self.model = FastSpeech2MIDI(self.phone_encoder)
         else:
             self.model = FastSpeech2(self.phone_encoder)
