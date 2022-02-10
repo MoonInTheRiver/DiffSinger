@@ -15,8 +15,10 @@ lambda_uv: 1.0
 #lambda_sent_dur: 1.0
 #lambda_word_dur: 1.0
 predictor_grad: 0.1
-pe_enable: true
-pe_ckpt: 'checkpoints/0102_xiaoma_pe'
+#pe_enable: true
+#pe_ckpt: 'checkpoints/0102_xiaoma_pe'
+pe_enable: false
+pe_ckpt: ''
 
 fs2_ckpt: ''  #
 #num_valid_plots: 0
@@ -24,5 +26,5 @@ task_cls: usr.diffsinger_task.DiffSingerMIDITask
 
 K_step: 100
 max_updates: 160000
-gaussion_start: true
+gaussian_start: true
 #save_gt: true

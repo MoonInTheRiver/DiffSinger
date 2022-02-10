@@ -12,4 +12,4 @@ task_cls: usr.diffsinger_task.DiffSingerOfflineTask
 
 K_step: 100
 max_updates: 320000
-gaussion_start: true
+gaussian_start: true

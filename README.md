@@ -4,7 +4,7 @@
 
 This repository is the official PyTorch implementation of our AAAI-2022 [paper](https://arxiv.org/abs/2105.02446), in which we propose DiffSinger (for Singing-Voice-Synthesis) and DiffSpeech (for Text-to-Speech).
  
-Besides, more detailed & improved code framework, which contains the implementations of FastSpeech 2, DiffSpeech and our NeurIPS-2021 work [PortaSpeech](https://openreview.net/forum?id=xmJsuh8xlq) is coming soon :sparkles: :sparkles: :sparkles:.
+Besides, more detailed & improved code framework, which contains the implementations of FastSpeech, DiffSpeech and our NeurIPS-2021 work [PortaSpeech](https://openreview.net/forum?id=xmJsuh8xlq) is coming soon :sparkles: :sparkles: :sparkles:.
 <table style="width:100%">
   <tr>
     <th>DiffSinger/DiffSpeech at training</th>
@@ -22,7 +22,7 @@ Besides, more detailed & improved code framework, which contains the implementat
  - May.06, 2021: We submitted DiffSinger to Arxiv [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2105.02446).
  
 :tada: :tada: :tada: **New features updates**:
- - Jan.29, 2022: support [MIDI](https://github.com/MoonInTheRiver/DiffSinger/blob/master/usr/configs/midi/readme.md) version SVS.
+ - Jan.29, 2022: support [MIDI](usr/configs/midi/readme.md) version SVS.
  - Jan.13, 2022: support SVS, release PopCS dataset.
  - Dec.19, 2021: support TTS.
 

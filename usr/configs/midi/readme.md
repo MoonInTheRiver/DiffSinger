@@ -36,26 +36,27 @@ CUDA_VISIBLE_DEVICES=0 python data_gen/tts/bin/binarize.py --config usr/configs/
 
 ### 2. Training Example
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_ds100.yaml --exp_name 0128_opencpop_ds_naive_midi --reset
+CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_ds58.yaml --exp_name 0128_opencpop_ds58_midi --reset  
+# or CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_ds100.yaml --exp_name 0128_opencpop_ds_naive_midi --reset
 ```
 
 ### 3. Inference Example
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_ds100.yaml --exp_name 0128_opencpop_ds_naive_midi --reset --infer
+CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_ds58.yaml --exp_name 0128_opencpop_ds58_midi --reset --infer
+# or CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_ds100.yaml --exp_name 0128_opencpop_ds_naive_midi --reset --infer
 ```
 
 We also provide:
- - the pre-trained model of [DiffSinger Naive](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0128_opencpop_ds_naive_midi.zip);
+ - the pre-trained model of [DiffSinger](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0128_opencpop_ds58_midi.zip);
+ - the pre-trained model of [FFT-Singer](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0126_opencpop_fs_midi.zip);
  - the pre-trained model of [HifiGAN-Singing](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0109_hifigan_bigpopcs_hop128.zip) which is specially designed for SVS with NSF mechanism, and you can replace the original checkpoint file by [MoreTrainingStepsCKPT](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/model_ckpt_steps_1512000.ckpt).
- - the pre-trained model of [Pitch-Extractor](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0102_xiaoma_pe.zip) to extract the F0 signal from the generated mel-spectrogram. This F0 will be used by our vocoder with NSF.
+ - the pre-trained model of [DiffSinger Naive](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0128_opencpop_ds_naive_midi.zip);
 
-Please unzip the [HifiGAN-Singing](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0109_hifigan_bigpopcs_hop128.zip) and [Pitch-Extractor](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0102_xiaoma_pe.zip) before training your new model.
+Please unzip the [HifiGAN-Singing](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0109_hifigan_bigpopcs_hop128.zip) and [FFT-Singer](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0126_opencpop_fs_midi.zip) before training your new model.
 
 ### 4. Some issues.
 a) the [HifiGAN-Singing](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0109_hifigan_bigpopcs_hop128.zip) is trained on our [vocoder dataset](https://dl.acm.org/doi/abs/10.1145/3474085.3475437) and the training set of [PopCS](https://arxiv.org/abs/2105.02446). Opencpop is the out-of-domain dataset (unseen speaker). This may cause the deterioration of audio quality, and we are considering fine-tuning this vocoder on the training set of Opencpop.
 
-b) the pipeline of DiffSinger-with-shallow-diffusion on Opencpop will be released soon.
+b) in this version of codes, we used the melody frontend ([lyric + MIDI]->[F0]) to predict F0 contour, but used the ground truth ph-durations.
 
-c) in this version of codes, we used the melody frontend ([lyric + MIDI]->[F0]) to predict F0 contour, but used the ground truth ph-durations.
-
-d) the generated audio demos can be found in [DiffSinger Naive](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0128_opencpop_ds_naive_midi.zip).
+c) the generated audio demos can be found in [DiffSinger](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0128_opencpop_ds58_midi.zip) or [DiffSinger Naive](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0128_opencpop_ds_naive_midi.zip).
