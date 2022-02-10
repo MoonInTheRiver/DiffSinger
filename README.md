@@ -109,7 +109,7 @@ We also provide:
 *Note that:* 
 
 - *the original PWG version vocoder in the paper we used has been put into commercial use, so we provide this HifiGAN version vocoder as a substitute.*
-- *we assume the ground-truth F0 to be given as the pitch information following [1][2][3]. If you want to conduct experiments on MIDI data (with external F0 predictor or joint prediction with spectrograms), you may turn on the pe_enable option. Otherwise, the vocoder with NSF could not work well.*
+- *we assume the ground-truth F0 to be given as the pitch information following [1][2][3]. If you want to conduct experiments on MIDI data, you need an external F0 predictor (like [MIDI version of DiffSinger](https://github.com/MoonInTheRiver/DiffSinger/blob/master/usr/configs/midi/readme.md)) or a joint prediction with spectrograms.*
 
 [1] Adversarially trained multi-singer sequence-to-sequence singing synthesizer. Interspeech 2020.
 

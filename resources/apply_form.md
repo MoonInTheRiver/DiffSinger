@@ -11,7 +11,7 @@ research fields: ***
 
 We want to apply for PopCS and agree to the dataset license: CC by-nc-sa 4.0 (NonCommercial!). 
 
-We accepts full responsibility for our use of the dataset and shall defend and indemnify the authors of DiffSinger, against any and all claims arising from our use of the dataset, including but not limited to our use of any copies of copyrighted audio files that we may create from the dataset.
+We accept full responsibility for our use of the dataset and shall defend and indemnify the authors of DiffSinger, against any and all claims arising from our use of the dataset, including but not limited to our use of any copies of copyrighted audio files that we may create from the dataset.
 
 We hereby represent that we are fully authorized to enter into this agreement on behalf of my employer.
 
