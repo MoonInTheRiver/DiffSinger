@@ -14,7 +14,9 @@ b) For Opencpop dataset: Please strictly follow the instructions of [Opencpop](h
 
 The pipeline below is designed for Opencpop dataset:
 
-### 1. Data Preparation
+### 1. Preparation
+
+#### Data Preparation
 a) Download and extract Opencpop, then create a link to the dataset folder: `ln -s /xxx/opencpop data/raw/`
 
 b) Create `meta.json` in `opencpop/segments` according to the information in `opencpop/segments/transcriptions.txt`
@@ -34,11 +36,28 @@ CUDA_VISIBLE_DEVICES=0 python data_gen/tts/bin/binarize.py --config usr/configs/
 # `data/binary/opencpop-midi-cascade` will be generated.
 ```
 
+#### Vocoder Preparation
+We provide the pre-trained model of [HifiGAN-Singing](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0109_hifigan_bigpopcs_hop128.zip) which is specially designed for SVS with NSF mechanism.
+Please unzip this file into `checkpoints` before training your acoustic model.
+
+(Update: You can also move [a ckpt with more training steps](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/model_ckpt_steps_1512000.ckpt) into this vocoder directory)
+
+This singing vocoder is trained on ~70 hours singing data, which can be viewed as a universal vocoder. 
+
 ### 2. Training Example
+First, you need a pre-trained FFT-Singer checkpoint. You can use the [pre-trained model](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0126_opencpop_fs_midi.zip), or train FFT-Singer from scratch, run:
+```sh
+CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_aux.yaml --exp_name 0126_opencpop_fs_midi --reset
+```
+
+Then, to train DiffSinger, run:
+
 ```sh
 CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_ds58.yaml --exp_name 0128_opencpop_ds58_midi --reset  
-# or CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_ds100.yaml --exp_name 0128_opencpop_ds_naive_midi --reset
+# or CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_ds100.yaml --exp_name 0128_opencpop_ds_naive_midi --reset  # The naive version does not need the pretrained FFT-Singer.
 ```
+
+Remember to adjust the "fs2_ckpt" parameter in `usr/configs/midi/cascade/opencs/opencpop_ds58.yaml` to fit your path.
 
 ### 3. Inference Example
 ```sh
@@ -49,10 +68,9 @@ CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/ope
 We also provide:
  - the pre-trained model of [DiffSinger](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0128_opencpop_ds58_midi.zip);
  - the pre-trained model of [FFT-Singer](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0126_opencpop_fs_midi.zip);
- - the pre-trained model of [HifiGAN-Singing](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0109_hifigan_bigpopcs_hop128.zip) which is specially designed for SVS with NSF mechanism, and you can replace the original checkpoint file by [MoreTrainingStepsCKPT](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/model_ckpt_steps_1512000.ckpt).
  - the pre-trained model of [DiffSinger Naive](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0128_opencpop_ds_naive_midi.zip);
 
-Please unzip the [HifiGAN-Singing](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0109_hifigan_bigpopcs_hop128.zip) and [FFT-Singer](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0126_opencpop_fs_midi.zip) before training your new model.
+Remember to put the pre-trained models in `checkpoints` directory.
 
 ### 4. Some issues.
 a) the [HifiGAN-Singing](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0109_hifigan_bigpopcs_hop128.zip) is trained on our [vocoder dataset](https://dl.acm.org/doi/abs/10.1145/3474085.3475437) and the training set of [PopCS](https://arxiv.org/abs/2105.02446). Opencpop is the out-of-domain dataset (unseen speaker). This may cause the deterioration of audio quality, and we are considering fine-tuning this vocoder on the training set of Opencpop.

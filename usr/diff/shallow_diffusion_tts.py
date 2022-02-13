@@ -344,7 +344,10 @@ class GaussianDiffusion(nn.Module):
             for i in tqdm(reversed(range(0, t)), desc='sample time step', total=t):
                 x = self.p_sample(x, torch.full((b,), i, device=device, dtype=torch.long), cond)
             x = x[:, 0].transpose(1, 2)
-            ret['mel_out'] = self.denorm_spec(x) * ((mel2ph > 0).float()[:, :, None])
+            if mel2ph is not None:  # for singing
+                ret['mel_out'] = self.denorm_spec(x) * ((mel2ph > 0).float()[:, :, None])
+            else:
+                ret['mel_out'] = self.denorm_spec(x)
         return ret
 
     def norm_spec(self, x):
