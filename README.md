@@ -1,10 +1,10 @@
 # DiffSinger: Singing Voice Synthesis via Shallow Diffusion Mechanism
 [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2105.02446)
 [![GitHub Stars](https://img.shields.io/github/stars/MoonInTheRiver/DiffSinger?style=social)](https://github.com/MoonInTheRiver/DiffSinger)
+[![download](https://img.shields.io/github/downloads/MoonInTheRiver/DiffSinger/total.svg)](https://github.com/MoonInTheRiver/DiffSinger/releases)
 
 This repository is the official PyTorch implementation of our AAAI-2022 [paper](https://arxiv.org/abs/2105.02446), in which we propose DiffSinger (for Singing-Voice-Synthesis) and DiffSpeech (for Text-to-Speech).
  
-Besides, more detailed & improved code framework, which contains the implementations of FastSpeech, DiffSpeech and our NeurIPS-2021 work [PortaSpeech](https://openreview.net/forum?id=xmJsuh8xlq) is coming soon :sparkles: :sparkles: :sparkles:.
 <table style="width:100%">
   <tr>
     <th>DiffSinger/DiffSpeech at training</th>
@@ -16,15 +16,16 @@ Besides, more detailed & improved code framework, which contains the implementat
   </tr>
 </table>
 
+:tada: :tada: :tada: **Updates**:
+ - Feb.13, 2022: [NATSpeech](https://github.com/NATSpeech/NATSpeech), the improved code framework, which contains the implementations of DiffSpeech and our NeurIPS-2021 work [PortaSpeech](https://openreview.net/forum?id=xmJsuh8xlq) has been released :sparkles: :sparkles: :sparkles:. 
+ - Jan.29, 2022: support [MIDI](usr/configs/midi/readme.md) version SVS.
+ - Jan.13, 2022: support SVS, release PopCS dataset.
+ - Dec.19, 2021: support TTS.
+ 
 :rocket: **News**: 
  - Dec.01, 2021: DiffSinger was accepted by AAAI-2022.
  - Sep.29, 2021: Our recent work `PortaSpeech: Portable and High-Quality Generative Text-to-Speech` was accepted by NeurIPS-2021 [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2109.15166) .
  - May.06, 2021: We submitted DiffSinger to Arxiv [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2105.02446).
- 
-:tada: :tada: :tada: **New features updates**:
- - Jan.29, 2022: support [MIDI](usr/configs/midi/readme.md) version SVS.
- - Jan.13, 2022: support SVS, release PopCS dataset.
- - Dec.19, 2021: support TTS.
 
 ## Environments
 ```sh
@@ -77,7 +78,7 @@ Remember to put the pre-trained models in `checkpoints` directory.
 - Dataset [preview](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/popcs_preview.zip).
 
 ### 1. Data Preparation
-a) Download and extract PopCS, then create a link to the dataset folder: `ln -s /xxx/popcs/ data/processed/`
+a) Download and extract PopCS, then create a link to the dataset folder: `ln -s /xxx/popcs/ data/processed/popcs`
 
 b) Run the following scripts to pack the dataset for training/inference.
 ```sh
