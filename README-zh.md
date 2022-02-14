@@ -90,7 +90,7 @@ CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/lj_ds_beta6.yaml
 
 ### 1. Preparation
 #### 数据准备
-a) 下载并解压PopCSDownload and extract PopCS, 创建软链接: `ln -s /xxx/popcs/ data/processed/popcs`
+a) 下载并解压PopCS, 创建软链接: `ln -s /xxx/popcs/ data/processed/popcs`
 
 b) 按照如下脚本给数据集打包，打包后的二进制文件用于后续的训练和推理.
 ```sh
@@ -103,7 +103,7 @@ CUDA_VISIBLE_DEVICES=0 python data_gen/tts/bin/binarize.py --config usr/configs/
 我们提供了[HifiGAN-Singing](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0109_hifigan_bigpopcs_hop128.zip)的预训练模型, 它专门为了歌声合成系统设计, 采用了NSF的技术。
 请在训练声学模型前，先把声码器文件解压到`checkpoints`里。
 
-(更新: 你也可以将[训练更多步数的存档点](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/model_ckpt_steps_1512000.ckpt)放到声码器的文件夹里)
+(更新: 你也可以将我们提供的[训练更多步数的存档点](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/model_ckpt_steps_1512000.ckpt)放到声码器的文件夹里)
 
 这个声码器是在大约70小时的较大数据集上训练的, 可以被认为是一个通用声码器。
 
@@ -137,9 +137,9 @@ CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/popcs_ds_beta6_o
 
 *请注意：*
 
--*我们原始论文中的PWG版本声码器已投入商业使用，因此我们提供此HifiGAN版本声码器作为替代品*
+-*我们原始论文中的PWG版本声码器已投入商业使用，因此我们提供此HifiGAN版本声码器作为替代品。*
 
--*我们假设提供真实的F0来进行实验，如[1][2][3]等前作所做的那样，重点在频谱建模上，而非F0曲线的预测。如果你想对MIDI数据进行实验，你需要一个外部的F0预测器（比如[DiffSinger的MIDI版本](usr/configs/MIDI/readme.md)），或者和频谱图一起进行联合预测（这种方法较难）。*
+-*我们这篇论文假设提供真实的F0来进行实验，如[1][2][3]等前作所做的那样，重点在频谱建模上，而非F0曲线的预测。如果你想对MIDI数据进行实验，从MIDI和歌词预测F0曲线，请查看文档：https://github.com/MoonInTheRiver/DiffSinger/blob/master/usr/configs/midi/readme.md  。目前已经支持的MIDI数据集有: Opencpop*
 
 [1] Adversarially trained multi-singer sequence-to-sequence singing synthesizer. Interspeech 2020.
 
