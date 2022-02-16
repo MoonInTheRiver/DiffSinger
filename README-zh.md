@@ -1,10 +1,11 @@
 # DiffSinger: Singing Voice Synthesis via Shallow Diffusion Mechanism
 [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2105.02446)
 [![GitHub Stars](https://img.shields.io/github/stars/MoonInTheRiver/DiffSinger?style=social)](https://github.com/MoonInTheRiver/DiffSinger)
-[![download](https://img.shields.io/github/downloads/MoonInTheRiver/DiffSinger/total.svg)](https://github.com/MoonInTheRiver/DiffSinger/releases)
+[![downloads](https://img.shields.io/github/downloads/MoonInTheRiver/DiffSinger/total.svg)](https://github.com/MoonInTheRiver/DiffSinger/releases)
+ | [HuggingFace🤗 Demo](https://huggingface.co/spaces/NATSpeech/DiffSpeech)
  | [English README](README.md)
 
-本仓库包含了我们的AAAI-2022 [论文](https://arxiv.org/abs/2105.02446)中提出的DiffSpeech (用于语音合成) 与 DiffSinger (用于歌声和成) 的官方Pytorch实现。
+本仓库包含了我们的AAAI-2022 [论文](https://arxiv.org/abs/2105.02446)中提出的DiffSpeech (用于语音合成) 与 DiffSinger (用于歌声合成) 的官方Pytorch实现。
 
 <table style="width:100%">
   <tr>
@@ -19,8 +20,8 @@
 
 :tada: :tada: :tada: **一些重要更新**:
  - Feb.13, 2022: [NATSpeech](https://github.com/NATSpeech/NATSpeech), 一个升级后的代码框架, 包含了DiffSpeech和我们NeurIPS-2021的工作[PortaSpeech](https://openreview.net/forum?id=xmJsuh8xlq) 已经开源! :sparkles: :sparkles: :sparkles:. 
- - Jan.29, 2022: 支持了[MIDI](usr/configs/midi/readme.md) 版本的歌声和成系统.
- - Jan.13, 2022: 支持了歌声和成系统, 开源了PopCS数据集.
+ - Jan.29, 2022: 支持了[MIDI](usr/configs/midi/readme.md) 版本的歌声合成系统.
+ - Jan.13, 2022: 支持了歌声合成系统, 开源了PopCS数据集.
  - Dec.19, 2021: 支持了语音合成系统.
  
 :rocket: **新闻**: 
@@ -82,7 +83,7 @@ CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/lj_ds_beta6.yaml
  
 记得把预训练模型放在 `checkpoints` 目录.
 
-## DiffSinger (歌声和成的版本)
+## DiffSinger (歌声合成的版本)
 
 ### 0. 数据获取
 - 见 [申请表](https://github.com/MoonInTheRiver/DiffSinger/blob/master/resources/apply_form.md).
