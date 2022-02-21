@@ -76,3 +76,6 @@ b) in this version of codes, we used the melody frontend ([lyric + MIDI]->[F0+ph
 
 c) example [generated audio](https://github.com/MoonInTheRiver/DiffSinger/blob/master/resources/demos_0221/0220_opencpop_ds58_midi/).
 More generated audio demos can be found in [DiffSinger](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0220_opencpop_ds58_midi.zip) or [FFT-Singer](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0219_opencpop_fs_midi.zip).
+
+**d) We haven't adjusted the hyper-parameters on this new dataset. Therefore, the current results are not satisfactory. 
+But, the configurations and pre-trained model of this part may be updated in the future if the experiments of this dataset draw enough attention.**
