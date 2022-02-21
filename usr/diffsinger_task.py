@@ -9,6 +9,7 @@ from vocoders.base_vocoder import get_vocoder_cls, BaseVocoder
 from modules.fastspeech.pe import PitchExtractor
 from modules.fastspeech.fs2 import FastSpeech2
 from modules.diffsinger_midi.fs2 import FastSpeech2MIDI
+from modules.fastspeech.tts_modules import mel2ph_to_dur
 
 from usr.diff.candidate_decoder import FFT
 from utils.pitch_utils import denorm_f0
@@ -37,6 +38,16 @@ class DiffSingerTask(DiffSpeechTask):
             self.pe.eval()
 
     def build_tts_model(self):
+        # import torch
+        # from tqdm import tqdm
+        # v_min = torch.ones([80]) * 100
+        # v_max = torch.ones([80]) * -100
+        # for i, ds in enumerate(tqdm(self.dataset_cls('train'))):
+        #     v_max = torch.max(torch.max(ds['mel'].reshape(-1, 80), 0)[0], v_max)
+        #     v_min = torch.min(torch.min(ds['mel'].reshape(-1, 80), 0)[0], v_min)
+        #     if i % 100 == 0:
+        #         print(i, v_min, v_max)
+        # print('final', v_min, v_max)
         mel_bins = hparams['audio_num_mel_bins']
         self.model = GaussianDiffusion(
             phone_encoder=self.phone_encoder,
@@ -247,6 +258,7 @@ class OpencpopDataset(FastSpeechDataset):
         sample['pitch_midi'] = torch.LongTensor(item['pitch_midi'])[:hparams['max_frames']]
         sample['midi_dur'] = torch.FloatTensor(item['midi_dur'])[:hparams['max_frames']]
         sample['is_slur'] = torch.LongTensor(item['is_slur'])[:hparams['max_frames']]
+        sample['word_boundary'] = torch.LongTensor(item['word_boundary'])[:hparams['max_frames']]
         return sample
 
     def collater(self, samples):
@@ -254,6 +266,7 @@ class OpencpopDataset(FastSpeechDataset):
         batch['pitch_midi'] = utils.collate_1d([s['pitch_midi'] for s in samples], 0)
         batch['midi_dur'] = utils.collate_1d([s['midi_dur'] for s in samples], 0)
         batch['is_slur'] = utils.collate_1d([s['is_slur'] for s in samples], 0)
+        batch['word_boundary'] = utils.collate_1d([s['word_boundary'] for s in samples], 0)
         return batch
 
 
@@ -290,6 +303,7 @@ class DiffSingerMIDITask(DiffSingerTask):
         losses = {}
         if 'diff_loss' in output:
             losses['mel'] = output['diff_loss']
+        self.add_dur_loss(output['dur'], mel2ph, txt_tokens, sample['word_boundary'], losses=losses)
         if hparams['use_pitch_embed']:
             self.add_pitch_loss(output, sample, losses)
         if hparams['use_energy_embed']:
@@ -334,6 +348,46 @@ class DiffSingerMIDITask(DiffSingerTask):
                 self.plot_pitch(batch_idx, sample, model_out)
         return outputs
 
+    def add_dur_loss(self, dur_pred, mel2ph, txt_tokens, wdb, losses=None):
+        """
+        :param dur_pred: [B, T], float, log scale
+        :param mel2ph: [B, T]
+        :param txt_tokens: [B, T]
+        :param losses:
+        :return:
+        """
+        B, T = txt_tokens.shape
+        nonpadding = (txt_tokens != 0).float()
+        dur_gt = mel2ph_to_dur(mel2ph, T).float() * nonpadding
+        is_sil = torch.zeros_like(txt_tokens).bool()
+        for p in self.sil_ph:
+            is_sil = is_sil | (txt_tokens == self.phone_encoder.encode(p)[0])
+        is_sil = is_sil.float()  # [B, T_txt]
+
+        # phone duration loss
+        if hparams['dur_loss'] == 'mse':
+            losses['pdur'] = F.mse_loss(dur_pred, (dur_gt + 1).log(), reduction='none')
+            losses['pdur'] = (losses['pdur'] * nonpadding).sum() / nonpadding.sum()
+            dur_pred = (dur_pred.exp() - 1).clamp(min=0)
+        else:
+            raise NotImplementedError
+
+        # use linear scale for sent and word duration
+        if hparams['lambda_word_dur'] > 0:
+            idx = F.pad(wdb.cumsum(axis=1), (1, 0))[:, :-1]
+            # word_dur_g = dur_gt.new_zeros([B, idx.max() + 1]).scatter_(1, idx, midi_dur)  # midi_dur can be implied by add gt-ph_dur
+            word_dur_p = dur_pred.new_zeros([B, idx.max() + 1]).scatter_add(1, idx, dur_pred)
+            word_dur_g = dur_gt.new_zeros([B, idx.max() + 1]).scatter_add(1, idx, dur_gt)
+            wdur_loss = F.mse_loss((word_dur_p + 1).log(), (word_dur_g + 1).log(), reduction='none')
+            word_nonpadding = (word_dur_g > 0).float()
+            wdur_loss = (wdur_loss * word_nonpadding).sum() / word_nonpadding.sum()
+            losses['wdur'] = wdur_loss * hparams['lambda_word_dur']
+        if hparams['lambda_sent_dur'] > 0:
+            sent_dur_p = dur_pred.sum(-1)
+            sent_dur_g = dur_gt.sum(-1)
+            sdur_loss = F.mse_loss((sent_dur_p + 1).log(), (sent_dur_g + 1).log(), reduction='mean')
+            losses['sdur'] = sdur_loss.mean() * hparams['lambda_sent_dur']
+
 
 class AuxDecoderMIDITask(FastSpeech2Task):
     def __init__(self):
@@ -368,7 +422,7 @@ class AuxDecoderMIDITask(FastSpeech2Task):
 
         losses = {}
         self.add_mel_loss(output['mel_out'], target, losses)
-        # self.add_dur_loss(output['dur'], mel2ph, txt_tokens, losses=losses)
+        self.add_dur_loss(output['dur'], mel2ph, txt_tokens, sample['word_boundary'], losses=losses)
         if hparams['use_pitch_embed']:
             self.add_pitch_loss(output, sample, losses)
         if hparams['use_energy_embed']:
@@ -377,6 +431,46 @@ class AuxDecoderMIDITask(FastSpeech2Task):
             return losses
         else:
             return losses, output
+
+    def add_dur_loss(self, dur_pred, mel2ph, txt_tokens, wdb, losses=None):
+        """
+        :param dur_pred: [B, T], float, log scale
+        :param mel2ph: [B, T]
+        :param txt_tokens: [B, T]
+        :param losses:
+        :return:
+        """
+        B, T = txt_tokens.shape
+        nonpadding = (txt_tokens != 0).float()
+        dur_gt = mel2ph_to_dur(mel2ph, T).float() * nonpadding
+        is_sil = torch.zeros_like(txt_tokens).bool()
+        for p in self.sil_ph:
+            is_sil = is_sil | (txt_tokens == self.phone_encoder.encode(p)[0])
+        is_sil = is_sil.float()  # [B, T_txt]
+
+        # phone duration loss
+        if hparams['dur_loss'] == 'mse':
+            losses['pdur'] = F.mse_loss(dur_pred, (dur_gt + 1).log(), reduction='none')
+            losses['pdur'] = (losses['pdur'] * nonpadding).sum() / nonpadding.sum()
+            dur_pred = (dur_pred.exp() - 1).clamp(min=0)
+        else:
+            raise NotImplementedError
+
+        # use linear scale for sent and word duration
+        if hparams['lambda_word_dur'] > 0:
+            idx = F.pad(wdb.cumsum(axis=1), (1, 0))[:, :-1]
+            # word_dur_g = dur_gt.new_zeros([B, idx.max() + 1]).scatter_(1, idx, midi_dur)  # midi_dur can be implied by add gt-ph_dur
+            word_dur_p = dur_pred.new_zeros([B, idx.max() + 1]).scatter_add(1, idx, dur_pred)
+            word_dur_g = dur_gt.new_zeros([B, idx.max() + 1]).scatter_add(1, idx, dur_gt)
+            wdur_loss = F.mse_loss((word_dur_p + 1).log(), (word_dur_g + 1).log(), reduction='none')
+            word_nonpadding = (word_dur_g > 0).float()
+            wdur_loss = (wdur_loss * word_nonpadding).sum() / word_nonpadding.sum()
+            losses['wdur'] = wdur_loss * hparams['lambda_word_dur']
+        if hparams['lambda_sent_dur'] > 0:
+            sent_dur_p = dur_pred.sum(-1)
+            sent_dur_g = dur_gt.sum(-1)
+            sdur_loss = F.mse_loss((sent_dur_p + 1).log(), (sent_dur_g + 1).log(), reduction='mean')
+            losses['sdur'] = sdur_loss.mean() * hparams['lambda_sent_dur']
 
     def validation_step(self, sample, batch_idx):
         outputs = {}
@@ -394,100 +488,3 @@ class AuxDecoderMIDITask(FastSpeech2Task):
             if hparams['use_pitch_embed']:
                 self.plot_pitch(batch_idx, sample, model_out)
         return outputs
-
-
-# class MIDI2PitchTask(DiffSingerTask):
-#     def __init__(self):
-#         super(DiffSpeechTask, self).__init__()
-#         self.dataset_cls = MIDIDataset
-#
-#     def build_tts_model(self):
-#         mel_bins = hparams['audio_num_mel_bins']
-#         self.model = GaussianDiffusion(
-#             phone_encoder=self.phone_encoder,
-#             out_dims=mel_bins, denoise_fn=DIFF_DECODERS[hparams['diff_decoder_type']](hparams),
-#             timesteps=hparams['timesteps'],
-#             K_step=hparams['K_step'],
-#             loss_type=hparams['diff_loss_type'],
-#             spec_min=hparams['spec_min'], spec_max=hparams['spec_max'],
-#         )
-#         utils.load_ckpt(self.model, hparams['ds_ckpt'], 'model', strict=True)
-#
-#         self.ds_params = [p for name, p in self.model.named_parameters() if
-#                            ('midi_embed' not in name) and ('pitch_predictor' not in name)]
-#
-#         self.midi_params = [p for name, p in self.model.named_parameters() if
-#                            ('midi_embed' in name) or ('pitch_predictor' in name)]
-#
-#     def build_optimizer(self, model):
-#         self.optimizer = optimizer = torch.optim.AdamW(
-#             self.midi_params,
-#             lr=hparams['lr'],
-#             betas=(hparams['optimizer_adam_beta1'], hparams['optimizer_adam_beta2']),
-#             weight_decay=hparams['weight_decay'])
-#         return optimizer
-#
-#     def run_model(self, model, sample, return_output=False, infer=False):
-#         txt_tokens = sample['txt_tokens']  # [B, T_t]
-#         target = sample['mels']  # [B, T_s, 80]
-#         # mel2ph = sample['mel2ph'] if hparams['use_gt_dur'] else None # [B, T_s]
-#         mel2ph = sample['mel2ph']
-#         f0 = sample['f0']
-#         uv = sample['uv']
-#         energy = sample['energy']
-#
-#         pitch_midi = sample['pitch_midi']
-#
-#         spk_embed = sample.get('spk_embed') if not hparams['use_spk_id'] else sample.get('spk_ids')
-#         if hparams['pitch_type'] == 'cwt':
-#             cwt_spec = sample[f'cwt_spec']
-#             f0_mean = sample['f0_mean']
-#             f0_std = sample['f0_std']
-#             sample['f0_cwt'] = f0 = model.cwt2f0_norm(cwt_spec, f0_mean, f0_std, mel2ph)
-#
-#         output = model(txt_tokens, mel2ph=mel2ph, spk_embed=spk_embed,
-#                        ref_mels=target, f0=f0, uv=uv, energy=energy, infer=infer, pitch_midi=pitch_midi)
-#
-#         losses = {}
-#         # if 'diff_loss' in output:
-#         #     losses['mel'] = output['diff_loss']
-#         if hparams['use_pitch_embed']:
-#             self.add_pitch_loss(output, sample, losses)
-#         # if hparams['use_energy_embed']:
-#         #     self.add_energy_loss(output['energy_pred'], energy, losses)
-#         if not return_output:
-#             return losses
-#         else:
-#             return losses, output
-#
-#     def validation_step(self, sample, batch_idx):
-#         outputs = {}
-#         txt_tokens = sample['txt_tokens']  # [B, T_t]
-#
-#         target = sample['mels']  # [B, T_s, 80]
-#         energy = sample['energy']
-#         # fs2_mel = sample['fs2_mels']
-#         spk_embed = sample.get('spk_embed') if not hparams['use_spk_id'] else sample.get('spk_ids')
-#         mel2ph = sample['mel2ph']
-#         f0 = sample['f0']
-#         uv = sample['uv']
-#
-#         pitch_midi = sample['pitch_midi']
-#         # f0_midi = sample['f0_midi']
-#
-#         outputs['losses'] = {}
-#
-#         outputs['losses'], model_out = self.run_model(self.model, sample, return_output=True, infer=False)
-#
-#
-#         outputs['total_loss'] = sum(outputs['losses'].values())
-#         outputs['nsamples'] = sample['nsamples']
-#         outputs = utils.tensors_to_scalars(outputs)
-#         if batch_idx < hparams['num_valid_plots']:
-#             model_out = self.model(
-#                 txt_tokens, spk_embed=spk_embed, mel2ph=mel2ph, f0=f0, uv=uv, energy=energy, ref_mels=None, infer=True,
-#                 pitch_midi=pitch_midi)
-#
-#             if hparams['use_pitch_embed']:
-#                 self.plot_pitch(batch_idx, sample, model_out)
-#         return outputs

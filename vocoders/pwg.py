@@ -115,7 +115,7 @@ class PWG(BaseVocoder):
             sample_rate=hparams['audio_sample_rate'],
             loud_norm=hparams['loud_norm'],
             min_level_db=hparams['min_level_db'],
-            return_linear=return_linear, vocoder='pwg')
+            return_linear=return_linear, vocoder='pwg', eps=hparams.get('wav2spec_eps', 1e-10))
         if return_linear:
             return res[0], res[1].T, res[2].T  # [T, 80], [T, n_fft]
         else:

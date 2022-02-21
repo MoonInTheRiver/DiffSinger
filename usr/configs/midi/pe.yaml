@@ -10,9 +10,7 @@ fmin: 30
 fmax: 12000
 min_level_db: -120
 
-#binary_data_dir: 'data/binary/popcs-pmf0'
-#binary_data_dir: 'data/binary/xiaoma1022_24k'
-binary_data_dir: 'data/binary/xiaoma1022_24k_128hop'
+binary_data_dir: 'xxx'
 
 pitch_type: frame
 task_cls: tasks.tts.pe.PitchExtractionTask

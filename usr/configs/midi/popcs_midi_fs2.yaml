@@ -18,7 +18,7 @@ processed_data_dir: 'data/processed/popcs'
 binarizer_cls: data_gen.singing.binarize.MidiSingingBinarizer
 binary_data_dir: 'data/binary/popcs-midi'
 pe_enable: true
-pe_ckpt: 'checkpoints/0102_xiaoma_pe'
+pe_ckpt: ''
 num_spk: 1
 datasets: [
   'popcs',

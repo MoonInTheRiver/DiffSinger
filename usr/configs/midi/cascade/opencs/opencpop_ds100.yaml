@@ -16,7 +16,7 @@ lambda_uv: 1.0
 #lambda_word_dur: 1.0
 predictor_grad: 0.1
 #pe_enable: true
-#pe_ckpt: 'checkpoints/0102_xiaoma_pe'
+#pe_ckpt: ''
 pe_enable: false
 pe_ckpt: ''
 

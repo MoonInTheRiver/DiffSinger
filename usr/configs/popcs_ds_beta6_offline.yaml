@@ -7,6 +7,6 @@ task_cls: usr.diffsinger_task.DiffSingerOfflineTask
 
 # tmp:
 #pe_enable: true
-#pe_ckpt: 'checkpoints/0102_xiaoma_pe'
+#pe_ckpt: ''
 vocoder: vocoders.hifigan.HifiGAN
 vocoder_ckpt: checkpoints/0109_hifigan_bigpopcs_hop128

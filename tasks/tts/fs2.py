@@ -458,6 +458,7 @@ class FastSpeech2Task(TtsTask):
 
     @staticmethod
     def save_result(wav_out, mel, prefix, item_name, text, gen_dir, str_phs=None, mel2ph=None, gt_f0=None, pred_f0=None):
+        item_name = item_name.replace('/', '-')
         base_fn = f'[{item_name}][{prefix}]'
 
         if text is not None:

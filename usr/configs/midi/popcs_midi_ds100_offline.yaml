@@ -4,7 +4,7 @@ base_config:
 binarizer_cls: data_gen.singing.binarize.MidiSingingBinarizer
 binary_data_dir: 'data/binary/popcs-midi'
 pe_enable: true
-pe_ckpt: 'checkpoints/0102_xiaoma_pe'
+pe_ckpt: ''
 
 fs2_ckpt: 'checkpoints/popcs_fs2_midi_1231/model_ckpt_steps_320000.ckpt'  #
 num_valid_plots: 0
