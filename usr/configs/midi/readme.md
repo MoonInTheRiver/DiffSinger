@@ -28,6 +28,12 @@ Please unzip this file into `checkpoints` before training your acoustic model.
 
 This singing vocoder is trained on ~70 hours singing data, which can be viewed as a universal vocoder. 
 
+#### Exp Name Preparation
+```bash
+export MY_FS_EXP_NAME=0222_opencpop_fs_midi
+export MY_DS_EXP_NAME=0223_opencpop_ds58_midi
+```
+
 ```
 .
 |--data
@@ -37,45 +43,47 @@ This singing vocoder is trained on ~70 hours singing data, which can be viewed a
                 |--transcriptions.txt
                 |--wavs
 |--checkpoints
-    |--0219_opencpop_fs_midi (optional)
-    |--0220_opencpop_ds58_midi (optional)
+    |--MY_FS_EXP_NAME (optional)
+    |--MY_DS_EXP_NAME (optional)
     |--0109_hifigan_bigpopcs_hop128
         |--model_ckpt_steps_1512000.ckpt
         |--config.yaml
 ```
 
 ### 2. Training Example
-First, you need a pre-trained FFT-Singer checkpoint. You can use the [pre-trained model](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0219_opencpop_fs_midi.zip), or train FFT-Singer from scratch, run:
+First, you need a pre-trained FFT-Singer checkpoint. You can use the pre-trained model, or train FFT-Singer from scratch, run:
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_aux.yaml --exp_name 0219_opencpop_fs_midi --reset
+CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_aux.yaml --exp_name MY_FS_EXP_NAME --reset
 ```
 
 Then, to train DiffSinger, run:
 
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_ds58.yaml --exp_name 0220_opencpop_ds58_midi --reset  
+CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_ds58.yaml --exp_name MY_DS_EXP_NAME --reset  
 ```
 
 Remember to adjust the "fs2_ckpt" parameter in `usr/configs/midi/cascade/opencs/opencpop_ds58.yaml` to fit your path.
 
 ### 3. Inference Example
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_ds58.yaml --exp_name 0128_opencpop_ds58_midi --reset --infer
+CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/opencpop_ds58.yaml --exp_name MY_DS_EXP_NAME --reset --infer
 ```
 
 We also provide:
- - the pre-trained model of [DiffSinger](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0220_opencpop_ds58_midi.zip);
- - the pre-trained model of [FFT-Singer](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0219_opencpop_fs_midi.zip);
+ - the pre-trained model of DiffSinger;
+ - the pre-trained model of FFT-Singer;
+ 
+They can be found in [here](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/increase_F0predictor_layer.zip).
 
 Remember to put the pre-trained models in `checkpoints` directory.
 
 ### 4. Some issues.
-a) the [HifiGAN-Singing](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0109_hifigan_bigpopcs_hop128.zip) is trained on our [vocoder dataset](https://dl.acm.org/doi/abs/10.1145/3474085.3475437) and the training set of [PopCS](https://arxiv.org/abs/2105.02446). Opencpop is the out-of-domain dataset (unseen speaker). This may cause the deterioration of audio quality, and we are considering fine-tuning this vocoder on the training set of Opencpop.
+a) the HifiGAN-Singing is trained on our [vocoder dataset](https://dl.acm.org/doi/abs/10.1145/3474085.3475437) and the training set of [PopCS](https://arxiv.org/abs/2105.02446). Opencpop is the out-of-domain dataset (unseen speaker). This may cause the deterioration of audio quality, and we are considering fine-tuning this vocoder on the training set of Opencpop.
 
 b) in this version of codes, we used the melody frontend ([lyric + MIDI]->[F0+ph_dur]) to predict F0 contour and phoneme duration.
 
-c) example [generated audio](https://github.com/MoonInTheRiver/DiffSinger/blob/master/resources/demos_0221/0220_opencpop_ds58_midi/).
-More generated audio demos can be found in [DiffSinger](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0220_opencpop_ds58_midi.zip) or [FFT-Singer](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0219_opencpop_fs_midi.zip).
+c) example [generated audio](https://github.com/MoonInTheRiver/DiffSinger/blob/master/resources/demos_0221/DS/).
+More generated audio demos can be found in [DiffSinger and FFT-Singer](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/increase_F0predictor_layer.zip).
 
 **d) We haven't adjusted the hyper-parameters on this new dataset. Therefore, the current results are not satisfactory. 
 But, the configurations and pre-trained model of this part may be updated in the future if the experiments of this dataset draw enough attention.**

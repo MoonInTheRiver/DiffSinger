@@ -52,7 +52,8 @@ use_nsf: true
 
 # config for experiments
 max_frames: 5000
-max_tokens: 18000
+max_tokens: 40000
+predictor_layers: 5
 use_spk_embed: false
 num_valid_plots: 10
 max_updates: 160000

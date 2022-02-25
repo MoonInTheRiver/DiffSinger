@@ -26,6 +26,7 @@ This repository is the official PyTorch implementation of our AAAI-2022 [paper](
  - Dec.19, 2021: support TTS. [HuggingFace🤗 Demo](https://huggingface.co/spaces/NATSpeech/DiffSpeech)
  
 :rocket: **News**: 
+ - Feb.24, 2022: Our new work, NeuralSVB was accepted by ACL-2022. [Demo Page](https://neuralsvb.github.io).
  - Dec.01, 2021: DiffSinger was accepted by AAAI-2022.
  - Sep.29, 2021: Our recent work `PortaSpeech: Portable and High-Quality Generative Text-to-Speech` was accepted by NeurIPS-2021 [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2109.15166) .
  - May.06, 2021: We submitted DiffSinger to Arxiv [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2105.02446).
