@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from modules.commons.common_layers import ConvNorm, Embedding
+from modules.commons.espnet_positional_embedding import RelPositionalEncoding
 from modules.commons.common_layers import SinusoidalPositionalEmbedding, Linear, EncSALayer, DecSALayer, BatchNorm1dTBC
 from utils.hparams import hparams
 
@@ -317,9 +317,12 @@ class FastspeechEncoder(FFTBlocks):
         self.embed_tokens = embed_tokens
         self.embed_scale = math.sqrt(hidden_size)
         self.padding_idx = 0
-        self.embed_positions = SinusoidalPositionalEmbedding(
-            hidden_size, self.padding_idx, init_size=DEFAULT_MAX_TARGET_POSITIONS,
-        )
+        if hparams.get('rel_pos') is not None and hparams['rel_pos']:
+            self.embed_positions = RelPositionalEncoding(hidden_size, dropout_rate=0.0)
+        else:
+            self.embed_positions = SinusoidalPositionalEmbedding(
+                hidden_size, self.padding_idx, init_size=DEFAULT_MAX_TARGET_POSITIONS,
+            )
 
     def forward(self, txt_tokens):
         """

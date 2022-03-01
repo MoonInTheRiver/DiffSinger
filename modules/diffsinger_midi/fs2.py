@@ -14,8 +14,11 @@ class FastspeechMIDIEncoder(FastspeechEncoder):
         x = self.embed_scale * self.embed_tokens(txt_tokens)
         x = x + midi_embedding + midi_dur_embedding + slur_embedding
         if hparams['use_pos_embed']:
-            positions = self.embed_positions(txt_tokens)
-            x = x + positions
+            if hparams.get('rel_pos') is not None and hparams['rel_pos']:
+                x = self.embed_positions(x)
+            else:
+                positions = self.embed_positions(txt_tokens)
+                x = x + positions
         x = F.dropout(x, p=self.dropout, training=self.training)
         return x
 
