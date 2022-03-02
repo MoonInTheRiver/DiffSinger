@@ -26,5 +26,6 @@ task_cls: usr.diffsinger_task.DiffSingerMIDITask
 K_step: 60
 max_tokens: 40000
 predictor_layers: 5
+dilation_cycle_length: 4  # *
 max_updates: 160000
 gaussian_start: false

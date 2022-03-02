@@ -19,12 +19,15 @@
 </table>
 
 :tada: :tada: :tada: **一些重要更新**:
+- Mar.2, 2022: [MIDI-新版](usr/configs/midi/readme-e2e.md): 重大更新 :sparkles:
+ - Mar.1, 2022: [NeuralSVB](https://github.com/MoonInTheRiver/NeuralSVB), 为了歌声美化任务的代码，开源了 :sparkles:  :sparkles:  :sparkles: .
  - Feb.13, 2022: [NATSpeech](https://github.com/NATSpeech/NATSpeech), 一个升级后的代码框架, 包含了DiffSpeech和我们NeurIPS-2021的工作[PortaSpeech](https://openreview.net/forum?id=xmJsuh8xlq) 已经开源! :sparkles: :sparkles: :sparkles:. 
- - Jan.29, 2022: 支持了[MIDI](usr/configs/midi/readme.md) 版本的歌声合成系统.
+ - Jan.29, 2022: 支持了[MIDI-旧版](usr/configs/midi/readme.md) 版本的歌声合成系统.
  - Jan.13, 2022: 支持了歌声合成系统, 开源了PopCS数据集.
  - Dec.19, 2021: 支持了语音合成系统. [HuggingFace🤗 Demo](https://huggingface.co/spaces/NATSpeech/DiffSpeech)
  
 :rocket: **新闻**: 
+ - Feb.24, 2022: 我们的新工作`NeuralSVB` 被 ACL-2022 接收 [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2202.13277). [音频演示](https://neuralsvb.github.io).
  - Dec.01, 2021: DiffSinger被AAAI-2022接收.
  - Sep.29, 2021: 我们的新工作`PortaSpeech: Portable and High-Quality Generative Text-to-Speech` 被NeurIPS-2021接收 [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2109.15166) .
  - May.06, 2021: 我们把这篇DiffSinger提交到了公开论文网站: Arxiv [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2105.02446).

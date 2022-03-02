@@ -19,9 +19,10 @@ This repository is the official PyTorch implementation of our AAAI-2022 [paper](
 </table>
 
 :tada: :tada: :tada: **Updates**:
+ - Mar.2, 2022: [MIDI-new-version](usr/configs/midi/readme-e2e.md): A substantial improvement :sparkles:
  - Mar.1, 2022: [NeuralSVB](https://github.com/MoonInTheRiver/NeuralSVB), for singing voice beautifying, has been released  :sparkles:  :sparkles:  :sparkles: .
  - Feb.13, 2022: [NATSpeech](https://github.com/NATSpeech/NATSpeech), the improved code framework, which contains the implementations of DiffSpeech and our NeurIPS-2021 work [PortaSpeech](https://openreview.net/forum?id=xmJsuh8xlq) has been released :sparkles: :sparkles: :sparkles:. 
- - Jan.29, 2022: support [MIDI](usr/configs/midi/readme.md) version SVS. **Keep Updating**. :construction: :pick: :hammer_and_wrench: 
+ - Jan.29, 2022: support [MIDI-old-version](usr/configs/midi/readme.md) SVS. **Keep Updating**. :construction: :pick: :hammer_and_wrench: 
  - Jan.13, 2022: support SVS, release PopCS dataset.
  - Dec.19, 2021: support TTS. [HuggingFace🤗 Demo](https://huggingface.co/spaces/NATSpeech/DiffSpeech)
  
