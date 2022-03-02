@@ -3,7 +3,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/MoonInTheRiver/DiffSinger?style=social)](https://github.com/MoonInTheRiver/DiffSinger)
 [![downloads](https://img.shields.io/github/downloads/MoonInTheRiver/DiffSinger/total.svg)](https://github.com/MoonInTheRiver/DiffSinger/releases)
 
-Substantial update: We 1) **abandon** the extraction and explicit prediction of the F0 curve; 2) increase the receptive field of the denoiser; 3) make the linguistic encoder more robust.
+Substantial update: We 1) **abandon** the explicit prediction of the F0 curve; 2) increase the receptive field of the denoiser; 3) make the linguistic encoder more robust.
 **By doing so, 1) the synthesized recordings are more natural in terms of pitch; 2) the pipeline is more simpler.**
 
 简而言之，把F0曲线的动态性交给生成式模型去捕捉，而不再是以前那样用MSE约束对数域F0。
@@ -27,7 +27,8 @@ Download and extract Opencpop, then create a link to the dataset folder: `ln -s 
 
 #### Vocoder Preparation
 We provide the pre-trained model of [HifiGAN-Singing](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0109_hifigan_bigpopcs_hop128.zip) which is specially designed for SVS with NSF mechanism.
-Please unzip this file into `checkpoints` before training your acoustic model.
+
+Also, please unzip pre-trained vocoder and [this pendant for vocoder](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0102_xiaoma_pe.zip) into `checkpoints` before training your acoustic model.
 
 (Update: You can also move [a ckpt with more training steps](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/model_ckpt_steps_1512000.ckpt) into this vocoder directory)
 
@@ -35,6 +36,7 @@ This singing vocoder is trained on ~70 hours singing data, which can be viewed a
 
 #### Exp Name Preparation
 ```bash
+export PYTHONPATH=.
 export MY_DS_EXP_NAME=0228_opencpop_ds100_rel
 ```
 
@@ -48,7 +50,7 @@ export MY_DS_EXP_NAME=0228_opencpop_ds100_rel
                 |--wavs
 |--checkpoints
     |--MY_DS_EXP_NAME (optional)
-    |--0109_hifigan_bigpopcs_hop128
+    |--0109_hifigan_bigpopcs_hop128 (vocoder)
         |--model_ckpt_steps_1512000.ckpt
         |--config.yaml
 ```
