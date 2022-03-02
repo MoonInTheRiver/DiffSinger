@@ -6,6 +6,7 @@
 Substantial update: We 1) **abandon** the extraction and explicit prediction of the F0 curve; 2) increase the receptive field of the denoiser; 3) make the linguistic encoder more robust.
 **By doing so, 1) the synthesized recordings are more natural in terms of pitch; 2) the pipeline is more simpler.**
 
+简而言之，把F0曲线的动态性交给生成式模型去捕捉，而不再是以前那样用MSE约束对数域F0。
 
 ## DiffSinger (MIDI version SVS)
 - First, we tend to remind you that MIDI version is not included in the content of our AAAI paper. The camera-ready version of the paper won't be changed. Thus, the authors make no warranties regarding this part of codes/experiments.

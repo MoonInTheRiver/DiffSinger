@@ -143,7 +143,7 @@ CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/popcs_ds_beta6_o
 
 -*我们原始论文中的PWG版本声码器已投入商业使用，因此我们提供此HifiGAN版本声码器作为替代品。*
 
--*我们这篇论文假设提供真实的F0来进行实验，如[1][2][3]等前作所做的那样，重点在频谱建模上，而非F0曲线的预测。如果你想对MIDI数据进行实验，从MIDI和歌词预测F0曲线，请查看文档：https://github.com/MoonInTheRiver/DiffSinger/blob/master/usr/configs/midi/readme.md  。目前已经支持的MIDI数据集有: Opencpop*
+-*我们这篇论文假设提供真实的F0来进行实验，如[1][2][3]等前作所做的那样，重点在频谱建模上，而非F0曲线的预测。如果你想对MIDI数据进行实验，从MIDI和歌词预测F0曲线（显式或隐式），请查看文档[MIDI-old-version](usr/configs/midi/readme.md) 或 [MIDI-new-version](usr/configs/midi/readme-e2e.md)。目前已经支持的MIDI数据集有: Opencpop*
 
 [1] Adversarially trained multi-singer sequence-to-sequence singing synthesizer. Interspeech 2020.
 
