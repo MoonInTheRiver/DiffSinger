@@ -25,3 +25,6 @@ spec_max: [-7.9453e-01, -8.1116e-01, -6.1631e-01, -3.0679e-01, -1.3863e-01,
 mel_vmin: -6. #-6.
 mel_vmax: 1.5
 wav2spec_eps: 1e-6
+
+raw_data_dir: 'data/raw/opencpop/segments'
+processed_data_dir: 'xxx'

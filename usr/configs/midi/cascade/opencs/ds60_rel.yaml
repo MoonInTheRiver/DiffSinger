@@ -19,7 +19,7 @@ predictor_grad: 0.1
 pe_enable: false
 pe_ckpt: ''
 
-fs2_ckpt: 'checkpoints/0222_opencpop_fs_midi/model_ckpt_steps_160000.ckpt'  #
+fs2_ckpt: 'checkpoints/0302_opencpop_fs_midi/model_ckpt_steps_160000.ckpt'  #
 #num_valid_plots: 0
 task_cls: usr.diffsinger_task.DiffSingerMIDITask
 

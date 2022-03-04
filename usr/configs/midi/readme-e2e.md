@@ -23,7 +23,16 @@ The pipeline below is designed for Opencpop dataset:
 ### 1. Preparation
 
 #### Data Preparation
-Download and extract Opencpop, then create a link to the dataset folder: `ln -s /xxx/opencpop data/raw/`
+a) Download and extract Opencpop, then create a link to the dataset folder: `ln -s /xxx/opencpop data/raw/`
+
+b) Run the following scripts to pack the dataset for training/inference.
+
+```sh
+export PYTHONPATH=.
+CUDA_VISIBLE_DEVICES=0 python data_gen/tts/bin/binarize.py --config usr/configs/midi/cascade/opencs/aux_rel.yaml
+
+# `data/binary/opencpop-midi-dp` will be generated.
+```
 
 #### Vocoder Preparation
 We provide the pre-trained model of [HifiGAN-Singing](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/0109_hifigan_bigpopcs_hop128.zip) which is specially designed for SVS with NSF mechanism.
@@ -36,7 +45,6 @@ This singing vocoder is trained on ~70 hours singing data, which can be viewed a
 
 #### Exp Name Preparation
 ```bash
-export PYTHONPATH=.
 export MY_DS_EXP_NAME=0228_opencpop_ds100_rel
 ```
 
