@@ -62,20 +62,20 @@ export MY_DS_EXP_NAME=0303_opencpop_ds58_midi
 ### 2. Training Example
 First, you need a pre-trained FFT-Singer checkpoint. You can use the pre-trained model, or train FFT-Singer from scratch, run:
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/aux_rel.yaml --exp_name MY_FS_EXP_NAME --reset
+CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/aux_rel.yaml --exp_name $MY_FS_EXP_NAME --reset
 ```
 
 Then, to train DiffSinger, run:
 
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/ds60_rel.yaml --exp_name MY_DS_EXP_NAME --reset  
+CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/ds60_rel.yaml --exp_name $MY_DS_EXP_NAME --reset  
 ```
 
 Remember to adjust the "fs2_ckpt" parameter in `usr/configs/midi/cascade/opencs/ds60_rel.yaml` to fit your path.
 
 ### 3. Inference Example
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/ds60_rel.yaml --exp_name MY_DS_EXP_NAME --reset --infer
+CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/cascade/opencs/ds60_rel.yaml --exp_name $MY_DS_EXP_NAME --reset --infer
 ```
 
 We also provide:

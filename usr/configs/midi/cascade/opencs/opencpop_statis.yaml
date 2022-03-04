@@ -28,3 +28,14 @@ wav2spec_eps: 1e-6
 
 raw_data_dir: 'data/raw/opencpop/segments'
 processed_data_dir: 'xxx'
+binary_data_dir: 'data/binary/opencpop-midi-dp'
+datasets: [
+  'opencpop',
+]
+test_prefixes: [
+    '2044',
+    '2086',
+    '2092',
+    '2093',
+    '2100',
+]
