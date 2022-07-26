@@ -1,8 +1,12 @@
 title: 'DiffSinger'
 description: |
-  Gradio demo for DiffSinger.
+  This model is trained on 5 hours single female singing voice samples of Opencpop dataset. (该模型在开源数据集Opencpop的5小时单人歌声上训练。)
 
-  请给每个汉字分配音高和时值, 每个字对应的音高和时值需要用|分隔符隔开。需要保证分隔符分割出来的音符窗口与汉字个数(AP或SP也算一个汉字)一致。
+  Please assign pitch and duration values to each Chinese character. The corresponding pitch and duration value of each character should be separated by a | separator. It is necessary to ensure that the note window separated by the separator is consistent with the number of Chinese characters (AP or SP is also viewed as a Chinese character). (请给每个汉字分配音高和时值, 每个字对应的音高和时值需要用|分隔符隔开。需要保证分隔符分割出来的音符窗口与汉字个数(AP或SP也算一个汉字)一致。)
+
+  You can click one of the examples to load them. (你可以点击下方示例，加载示例曲谱。)
+
+  Note: This space is running on CPU, inference times will be higher. (该Demo是在Huggingface提供的CPU上运行的, 其推理速度在本地会更高一些。)
 
 article: |
   Link to <a href='https://github.com/MoonInTheRiver/DiffSinger' style='color:blue;' target='_blank\'>Github REPO</a>

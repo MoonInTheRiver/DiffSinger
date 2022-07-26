@@ -1,7 +1,7 @@
 ## DiffSinger (SVS version)
 
 ### PART1. [Run DiffSinger on PopCS](README-SVS-popcs.md)
-In this part, we only focus on spectrum modeling (acoustic model) and assume the ground-truth (GT) F0 to be given as the pitch information following these papers [1][2][3]. 
+In PART1, we only focus on spectrum modeling (acoustic model) and assume the ground-truth (GT) F0 to be given as the pitch information following these papers [1][2][3]. If you want to conduct experiments on F0 prediction, please move to PART2.
 
 Thus, the pipeline of this part can be summarized as:
 
@@ -18,13 +18,16 @@ Thus, the pipeline of this part can be summarized as:
 
 [3] DeepSinger : Singing Voice Synthesis with Data Mined From the Web. KDD 2020.
 
+Click here for detailed instructions: [link](README-SVS-popcs.md).
+
+
 ### PART2. [Run DiffSinger on Opencpop](README-SVS-opencpop-cascade.md)
-Thanks [Opencpop team](https://wenet.org.cn/opencpop/) for releasing their SVS dataset with MIDI label, **Jan.20, 2022**. (Also thanks to my co-author [Yi Ren](https://github.com/RayeRen), who applied for the dataset and did some preprocessing works for this part).
+Thanks [Opencpop team](https://wenet.org.cn/opencpop/) for releasing their SVS dataset with MIDI label, **Jan.20, 2022** (after we published our paper).
 
 Since there are elaborately annotated MIDI labels, we are able to supplement the pipeline in PART 1 by adding a naive melody frontend.
 
-#### 2.1
-Thus, the pipeline of [this part](README-SVS-opencpop-cascade.md) can be summarized as:
+#### 2.A
+Thus, the pipeline of [2.A](README-SVS-opencpop-cascade.md) can be summarized as:
 
 ```
 [lyrics] + [MIDI] -> [linguistic representation (with MIDI information)] + [predicted F0] + [predicted phoneme duration] (Melody frontend)
@@ -32,13 +35,32 @@ Thus, the pipeline of [this part](README-SVS-opencpop-cascade.md) can be summari
 [mel-spectrogram] + [predicted F0] -> [waveform] (Vocoder)
 ```
 
-#### 2.2
-In 2.1, we find that if we predict F0 explicitly in the melody frontend, there will be many bad cases of uv/v prediction. Then, we abandon the explicit prediction of the F0 curve in the melody frontend but make a joint prediction with spectrograms.
+Click here for detailed instructions: [link](README-SVS-opencpop-cascade.md).
 
-Thus, the pipeline of [this part](README-SVS-opencpop-e2e.md) can be summarized as:
+#### 2.B
+In 2.1, we find that if we predict F0 explicitly in the melody frontend, there will be many bad cases of uv/v prediction. Then, we abandon the explicit prediction of the F0 curve in the melody frontend and make a joint prediction with spectrograms.
+
+Thus, the pipeline of [2.B](README-SVS-opencpop-e2e.md) can be summarized as:
 ```
 [lyrics] + [MIDI] -> [linguistic representation] + [predicted phoneme duration] (Melody frontend)
 [linguistic representation (with MIDI information)] + [predicted phoneme duration] -> [mel-spectrogram]  (Acoustic model)
 [mel-spectrogram] -> [predicted F0]  (Pitch extractor)
 [mel-spectrogram] + [predicted F0] -> [waveform] (Vocoder)
 ```
+
+Click here for detailed instructions: [link](README-SVS-opencpop-e2e.md).
+
+### FAQ
+Q: Why do you need F0 in Vocoders?
+
+A: See vocoder parts in HiFiSinger, DiffSinger or SingGAN. This is a common practice now.
+
+Q: Why not run MIDI version SVS on PopCS dataset? or Why not release MIDI labels for PopCS dataset?
+
+A: Our laboratory has no funds to label PopCS dataset. But there are funds for labeling other singing datasets, which is coming soon.
+
+Q: Why " 'HifiGAN' object has no attribute 'model' "?
+
+A: Please put the pretrained vocoders in your `checkpoints` dictionary.
+
+...

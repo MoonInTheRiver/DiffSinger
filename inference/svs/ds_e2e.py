@@ -24,7 +24,7 @@ class DiffSingerE2EInfer(BaseSVSInfer):
         load_ckpt(model, hparams['work_dir'], 'model')
 
         if hparams.get('pe_enable') is not None and hparams['pe_enable']:
-            self.pe = PitchExtractor().cuda()
+            self.pe = PitchExtractor().to(self.device)
             utils.load_ckpt(self.pe, hparams['pe_ckpt'], 'model', strict=True)
             self.pe.eval()
         return model
