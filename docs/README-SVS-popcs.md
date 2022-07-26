@@ -54,7 +54,7 @@ Remember to put the pre-trained models in `checkpoints` directory.
 *Note that:* 
 
 - *the original PWG version vocoder in the paper we used has been put into commercial use, so we provide this HifiGAN version vocoder as a substitute.*
-- *we assume the ground-truth F0 to be given as the pitch information following [1][2][3]. If you want to conduct experiments on MIDI data, you need an external F0 predictor (like [MIDI-old-version](README-SVS-opencpop-cascade.md)) or a joint prediction with spectrograms(like [MIDI-new-version](README-SVS-opencpop-e2e.md)).*
+- *we assume the ground-truth F0 to be given as the pitch information following [1][2][3]. If you want to conduct experiments on MIDI data, you need an external F0 predictor (like [MIDI-A-version](README-SVS-opencpop-cascade.md)) or a joint prediction with spectrograms(like [MIDI-B-version](README-SVS-opencpop-e2e.md)).*
 
 [1] Adversarially trained multi-singer sequence-to-sequence singing synthesizer. Interspeech 2020.
 
