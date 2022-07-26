@@ -51,7 +51,7 @@ Thus, the pipeline of [2.B](README-SVS-opencpop-e2e.md) can be summarized as:
 Click here for detailed instructions: [link](README-SVS-opencpop-e2e.md).
 
 ### FAQ
-Q: Why do you need F0 in Vocoders?
+Q: Why do I need F0 in Vocoders?
 
 A: See vocoder parts in HiFiSinger, DiffSinger or SingGAN. This is a common practice now.
 
@@ -62,5 +62,9 @@ A: Our laboratory has no funds to label PopCS dataset. But there are funds for l
 Q: Why " 'HifiGAN' object has no attribute 'model' "?
 
 A: Please put the pretrained vocoders in your `checkpoints` dictionary.
+
+Q: How to check whether I use GT information or predicted information during inference?
+
+A: Please see codes [here](https://github.com/MoonInTheRiver/DiffSinger/blob/55e2f46068af6e69940a9f8f02d306c24a940cab/tasks/tts/fs2.py#L343). If you set `use_gt_xx=False`, then guess what :) .
 
 ...
