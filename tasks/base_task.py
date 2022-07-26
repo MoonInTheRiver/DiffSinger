@@ -64,6 +64,7 @@ class BaseDataset(torch.utils.data.Dataset):
             indices = np.random.permutation(len(self))
             if self.sort_by_len:
                 indices = indices[np.argsort(np.array(self._sizes)[indices], kind='mergesort')]
+                # 先random, 然后稳定排序, 保证排序后同长度的数据顺序是依照random permutation的 (被其随机打乱).
         else:
             indices = np.arange(len(self))
         return indices

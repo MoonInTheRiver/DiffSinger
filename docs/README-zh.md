@@ -3,7 +3,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/MoonInTheRiver/DiffSinger?style=social)](https://github.com/MoonInTheRiver/DiffSinger)
 [![downloads](https://img.shields.io/github/downloads/MoonInTheRiver/DiffSinger/total.svg)](https://github.com/MoonInTheRiver/DiffSinger/releases)
  | [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-blue)](https://huggingface.co/spaces/NATSpeech/DiffSpeech)
- | [English README](README.md)
+ | [English README](../README.md)
 
 本仓库包含了我们的AAAI-2022 [论文](https://arxiv.org/abs/2105.02446)中提出的DiffSpeech (用于语音合成) 与 DiffSinger (用于歌声合成) 的官方Pytorch实现。
 
@@ -19,10 +19,10 @@
 </table>
 
 :tada: :tada: :tada: **一些重要更新**:
-- Mar.2, 2022: [MIDI-新版](usr/configs/midi/readme-e2e.md): 重大更新 :sparkles:
+- Mar.2, 2022: [MIDI-新版](README-SVS-opencpop-e2e.md): 重大更新 :sparkles:
  - Mar.1, 2022: [NeuralSVB](https://github.com/MoonInTheRiver/NeuralSVB), 为了歌声美化任务的代码，开源了 :sparkles:  :sparkles:  :sparkles: .
  - Feb.13, 2022: [NATSpeech](https://github.com/NATSpeech/NATSpeech), 一个升级后的代码框架, 包含了DiffSpeech和我们NeurIPS-2021的工作[PortaSpeech](https://openreview.net/forum?id=xmJsuh8xlq) 已经开源! :sparkles: :sparkles: :sparkles:. 
- - Jan.29, 2022: 支持了[MIDI-旧版](usr/configs/midi/readme.md) 版本的歌声合成系统.
+ - Jan.29, 2022: 支持了[MIDI-旧版](README-SVS-opencpop-cascade.md) 版本的歌声合成系统.
  - Jan.13, 2022: 支持了歌声合成系统, 开源了PopCS数据集.
  - Dec.19, 2021: 支持了语音合成系统. [HuggingFace🤗 Demo](https://huggingface.co/spaces/NATSpeech/DiffSpeech)
  
@@ -143,7 +143,7 @@ CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/popcs_ds_beta6_o
 
 -*我们原始论文中的PWG版本声码器已投入商业使用，因此我们提供此HifiGAN版本声码器作为替代品。*
 
--*我们这篇论文假设提供真实的F0来进行实验，如[1][2][3]等前作所做的那样，重点在频谱建模上，而非F0曲线的预测。如果你想对MIDI数据进行实验，从MIDI和歌词预测F0曲线（显式或隐式），请查看文档[MIDI-old-version](usr/configs/midi/readme.md) 或 [MIDI-new-version](usr/configs/midi/readme-e2e.md)。目前已经支持的MIDI数据集有: Opencpop*
+-*我们这篇论文假设提供真实的F0来进行实验，如[1][2][3]等前作所做的那样，重点在频谱建模上，而非F0曲线的预测。如果你想对MIDI数据进行实验，从MIDI和歌词预测F0曲线（显式或隐式），请查看文档[MIDI-old-version](README-SVS-opencpop-cascade.md) 或 [MIDI-new-version](README-SVS-opencpop-e2e.md)。目前已经支持的MIDI数据集有: Opencpop*
 
 [1] Adversarially trained multi-singer sequence-to-sequence singing synthesizer. Interspeech 2020.
 
@@ -182,14 +182,14 @@ tensorboard --logdir_spec exp_name
 ## Audio Demos
 音频样本可以看我们的[样例页](https://diffsinger.github.io/).
 
-我们也放了部分由DiffSpeech+HifiGAN (标记为[P]) 和 GTmel+HifiGAN (标记为[G]) 生成的测试集音频样例在：[resources/demos_1213](resources/demos_1213). 
+我们也放了部分由DiffSpeech+HifiGAN (标记为[P]) 和 GTmel+HifiGAN (标记为[G]) 生成的测试集音频样例在：[resources/demos_1213](../resources/demos_1213). 
 
 (对应这个预训练参数：[DiffSpeech](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/lj_ds_beta6_1213.zip))
 
 ---
 :rocket: :rocket: :rocket: **更新:**
 
-新生成的歌声样例在：[resources/demos_0112](resources/demos_0112).
+新生成的歌声样例在：[resources/demos_0112](../resources/demos_0112).
 
 ## Citation
 如果本仓库对你的研究和工作有用，请引用以下论文：

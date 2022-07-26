@@ -431,7 +431,8 @@ class FastSpeech2Task(TtsTask):
                             wav_gt, mel_gt, 'G', item_name, text, gen_dir, str_phs, mel2ph_gt, f0_gt, f0_pred]))
                     if hparams['save_f0']:
                         import matplotlib.pyplot as plt
-                        f0_pred_, _ = get_pitch(wav_pred, mel_pred, hparams)
+                        # f0_pred_, _ = get_pitch(wav_pred, mel_pred, hparams)
+                        f0_pred_ = f0_pred
                         f0_gt_, _ = get_pitch(wav_gt, mel_gt, hparams)
                         fig = plt.figure()
                         plt.plot(f0_pred_, label=r'$f0_P$')
