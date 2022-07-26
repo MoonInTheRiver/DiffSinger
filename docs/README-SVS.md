@@ -63,8 +63,8 @@ Q: Why " 'HifiGAN' object has no attribute 'model' "?
 
 A: Please put the pretrained vocoders in your `checkpoints` dictionary.
 
-Q: How to check whether I use GT information or predicted information during inference?
+Q: How to check whether I use GT information or predicted information during inference from packed test set?
 
-A: Please see codes [here](https://github.com/MoonInTheRiver/DiffSinger/blob/55e2f46068af6e69940a9f8f02d306c24a940cab/tasks/tts/fs2.py#L343). If you set `use_gt_xx=False`, then guess what :) .
+A: Please see codes [here](https://github.com/MoonInTheRiver/DiffSinger/blob/55e2f46068af6e69940a9f8f02d306c24a940cab/tasks/tts/fs2.py#L343).
 
 ...
