@@ -1,4 +1,10 @@
-## DiffSinger (SVS version)
+# DiffSinger: Singing Voice Synthesis via Shallow Diffusion Mechanism
+[![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2105.02446)
+[![GitHub Stars](https://img.shields.io/github/stars/MoonInTheRiver/DiffSinger?style=social)](https://github.com/MoonInTheRiver/DiffSinger)
+[![downloads](https://img.shields.io/github/downloads/MoonInTheRiver/DiffSinger/total.svg)](https://github.com/MoonInTheRiver/DiffSinger/releases)
+ | [Interactive🤗 SVS](https://huggingface.co/spaces/Silentlin/DiffSinger)
+
+## DiffSinger (SVS)
 
 ### PART1. [Run DiffSinger on PopCS](README-SVS-popcs.md)
 In PART1, we only focus on spectrum modeling (acoustic model) and assume the ground-truth (GT) F0 to be given as the pitch information following these papers [1][2][3]. If you want to conduct experiments on F0 prediction, please move to PART2.

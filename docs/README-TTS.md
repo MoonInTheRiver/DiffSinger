@@ -1,4 +1,10 @@
-## DiffSpeech (TTS version)
+# DiffSinger: Singing Voice Synthesis via Shallow Diffusion Mechanism
+[![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2105.02446)
+[![GitHub Stars](https://img.shields.io/github/stars/MoonInTheRiver/DiffSinger?style=social)](https://github.com/MoonInTheRiver/DiffSinger)
+[![downloads](https://img.shields.io/github/downloads/MoonInTheRiver/DiffSinger/total.svg)](https://github.com/MoonInTheRiver/DiffSinger/releases)
+ | [Interactive🤗 TTS](https://huggingface.co/spaces/NATSpeech/DiffSpeech)
+ 
+## DiffSpeech (TTS)
 ### 1. Preparation
 
 #### Data Preparation
