@@ -7,7 +7,7 @@
 ## DiffSinger (SVS)
 
 ### PART1. [Run DiffSinger on PopCS](README-SVS-popcs.md)
-In PART1, we only focus on spectrum modeling (acoustic model) and assume the ground-truth (GT) F0 to be given as the pitch information following these papers [1][2][3]. If you want to conduct experiments on F0 prediction, please move to PART2.
+In PART1, we only focus on spectrum modeling (acoustic model) and assume the ground-truth (GT) F0 to be given as the pitch information following these papers [1][2][3]. If you want to conduct experiments with F0 prediction, please move to PART2.
 
 Thus, the pipeline of this part can be summarized as:
 
@@ -57,20 +57,20 @@ Thus, the pipeline of [2.B](README-SVS-opencpop-e2e.md) can be summarized as:
 Click here for detailed instructions: [link](README-SVS-opencpop-e2e.md).
 
 ### FAQ
-Q: Why do I need F0 in Vocoders?
+Q1: Why do I need F0 in Vocoders?
 
-A: See vocoder parts in HiFiSinger, DiffSinger or SingGAN. This is a common practice now.
+A1: See vocoder parts in HiFiSinger, DiffSinger or SingGAN. This is a common practice now.
 
-Q: Why not run MIDI version SVS on PopCS dataset? or Why not release MIDI labels for PopCS dataset?
+Q2: Why not run MIDI version SVS on PopCS dataset? or Why not release MIDI labels for PopCS dataset?
 
-A: Our laboratory has no funds to label PopCS dataset. But there are funds for labeling other singing datasets, which is coming soon.
+A2: Our laboratory has no funds to label PopCS dataset. But there are funds for labeling other singing dataset, which is coming soon.
 
-Q: Why " 'HifiGAN' object has no attribute 'model' "?
+Q3: Why " 'HifiGAN' object has no attribute 'model' "?
 
-A: Please put the pretrained vocoders in your `checkpoints` dictionary.
+A3: Please put the pretrained vocoders in your `checkpoints` dictionary.
 
-Q: How to check whether I use GT information or predicted information during inference from packed test set?
+Q4: How to check whether I use GT information or predicted information during inference from packed test set?
 
-A: Please see codes [here](https://github.com/MoonInTheRiver/DiffSinger/blob/55e2f46068af6e69940a9f8f02d306c24a940cab/tasks/tts/fs2.py#L343).
+A4: Please see codes [here](https://github.com/MoonInTheRiver/DiffSinger/blob/55e2f46068af6e69940a9f8f02d306c24a940cab/tasks/tts/fs2.py#L343).
 
 ...

@@ -123,7 +123,7 @@ class BaseSVSInfer:
             #  0        0          1
             if len(note_in_this_word) > 1:  # is_slur = True, we should repeat the YUNMU to match the 2nd, 3rd... notes.
                 for idx in range(1, len(note_in_this_word)):
-                    ph_lst.append(ph_in_this_word[1])
+                    ph_lst.append(ph_in_this_word[-1])
                     note_lst.append(note_in_this_word[idx])
                     midi_dur_lst.append(midi_dur_in_this_word[idx])
                     is_slur.append(1)
