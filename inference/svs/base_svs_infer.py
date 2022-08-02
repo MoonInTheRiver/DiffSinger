@@ -142,7 +142,7 @@ class BaseSVSInfer:
         ph_seq = inp['ph_seq']
         note_lst = inp['note_seq'].split()
         midi_dur_lst = inp['note_dur_seq'].split()
-        is_slur = inp['is_slur_seq'].split()
+        is_slur = [float(x) for x in inp['is_slur_seq'].split()]
         print(len(note_lst), len(ph_seq.split()), len(midi_dur_lst))
         if len(note_lst) == len(ph_seq.split()) == len(midi_dur_lst):
             print('Pass word-notes check.')
