@@ -182,7 +182,7 @@ def load_ckpt(cur_model, ckpt_base_dir, prefix_in_ckpt='model', force=True, stri
     else:
         base_dir = ckpt_base_dir
         checkpoint_path = sorted(glob.glob(f'{base_dir}/model_ckpt_steps_*.ckpt'), key=
-        lambda x: int(re.findall(f'{base_dir}/model_ckpt_steps_(\d+).ckpt', x)[0]))
+        lambda x: int(re.findall(f'{base_dir}/model_ckpt_steps_(\d+).ckpt', x.replace('\\','/'))[0]))
     if len(checkpoint_path) > 0:
         checkpoint_path = checkpoint_path[-1]
         state_dict = torch.load(checkpoint_path, map_location="cpu")["state_dict"]
