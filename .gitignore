@@ -3,3 +3,7 @@
 __pycache__/
 *.sh
 local_tools/
+*.ckpt
+*.wav
+infer_out/
+config.yaml
