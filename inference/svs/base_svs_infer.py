@@ -47,7 +47,7 @@ class BaseSVSInfer:
         base_dir = hparams['vocoder_ckpt']
         config_path = f'{base_dir}/config.yaml'
         ckpt = sorted(glob.glob(f'{base_dir}/model_ckpt_steps_*.ckpt'), key=
-        lambda x: int(re.findall(f'{base_dir}/model_ckpt_steps_(\d+).ckpt', x)[0]))[-1]
+        lambda x: int(re.findall(f'{base_dir}/model_ckpt_steps_(\d+).ckpt', x.replace('\\','/'))[0]))[-1]
         print('| load HifiGAN: ', ckpt)
         ckpt_dict = torch.load(ckpt, map_location="cpu")
         config = set_hparams(config_path, global_hparams=False)
