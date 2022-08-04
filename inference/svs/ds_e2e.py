@@ -1,4 +1,4 @@
-﻿import torch
+import torch
 # from inference.tts.fs import FastSpeechInfer
 # from modules.tts.fs2_orig import FastSpeech2Orig
 from inference.svs.base_svs_infer import BaseSVSInfer

@@ -1,3 +1,4 @@
+# coding=utf8
 import os
 
 import torch
@@ -232,13 +233,14 @@ class BaseSVSInfer:
         return output
 
     @classmethod
-    def example_run(cls, inp):
+    def example_run(cls, inp, target='infer_out/example_out.wav'):
         from utils.audio import save_wav
         set_hparams(print_hparams=False)
         infer_ins = cls(hparams)
         out = infer_ins.infer_once(inp)
-        os.makedirs('infer_out', exist_ok=True)
-        save_wav(out, f'infer_out/example_out.wav', hparams['audio_sample_rate'])
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        print(f'Save output: {target}')
+        save_wav(out, target, hparams['audio_sample_rate'])
 
 
 # if __name__ == '__main__':
