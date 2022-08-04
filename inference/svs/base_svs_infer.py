@@ -239,7 +239,7 @@ class BaseSVSInfer:
         infer_ins = cls(hparams)
         out = infer_ins.infer_once(inp)
         os.makedirs(os.path.dirname(target), exist_ok=True)
-        print(f'Save output: {target}')
+        print(f'| save audio: {target}')
         save_wav(out, target, hparams['audio_sample_rate'])
 
 
