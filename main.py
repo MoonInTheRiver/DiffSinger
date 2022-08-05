@@ -4,6 +4,8 @@ import json
 import os
 import sys
 
+import torch
+
 from inference.svs.ds_e2e import DiffSingerE2EInfer
 
 root_dir = os.path.dirname(__file__)
@@ -14,6 +16,7 @@ parser.add_argument('proj', type=str, help='Path to the input file')
 parser.add_argument('--out', type=str, default='./infer_out', required=False, help='Path of the output folder')
 parser.add_argument('--title', type=str, required=False, help='Title of output file')
 parser.add_argument('--num', type=int, default=1, help='Number of runs')
+parser.add_argument('--seed', type=int, help='Random seed of the inference')
 args = parser.parse_args()
 
 with open(args.proj, 'r', encoding='utf-8') as f:
@@ -26,6 +29,11 @@ sys.argv = [
     '--exp_name',
     '0228_opencpop_ds100_rel'
 ]
+
+if args.seed:
+    print(f'Setting random seed: {args.seed}')
+    torch.manual_seed(args.seed)
+    torch.cuda.manual_seed_all(args.seed)
 
 name = os.path.basename(args.proj).split('.')[0] if not args.title else args.title
 if args.num == 1:
