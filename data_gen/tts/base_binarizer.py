@@ -133,9 +133,26 @@ class BaseBinarizer:
         meta_data = list(self.meta_data(prefix))
         for m in meta_data:
             args.append(list(m) + [self.phone_encoder, self.binarization_args])
+        '''
         num_workers = int(os.getenv('N_PROC', os.cpu_count() // 3))
         for f_id, (_, item) in enumerate(
                 zip(tqdm(meta_data), chunked_multiprocess_run(self.process_item, args, num_workers=num_workers))):
+            if item is None:
+                continue
+            item['spk_embed'] = voice_encoder.embed_utterance(item['wav']) \
+                if self.binarization_args['with_spk_embed'] else None
+            if not self.binarization_args['with_wav'] and 'wav' in item:
+                print("del wav")
+                del item['wav']
+            builder.add_item(item)
+            lengths.append(item['len'])
+            total_sec += item['sec']
+            if item.get('f0') is not None:
+                f0s.append(item['f0'])
+        '''
+        for i in tqdm(reversed(range(len(args))),total=len(args)):
+            a=args[i]
+            item = self.process_item(*a)
             if item is None:
                 continue
             item['spk_embed'] = voice_encoder.embed_utterance(item['wav']) \
