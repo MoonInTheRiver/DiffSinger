@@ -249,9 +249,10 @@ class BaseTask(nn.Module):
         if not hparams['infer']:  # train
             t = datetime.now().strftime('%Y%m%d%H%M%S')
             code_dir = f'{work_dir}/codes/{t}'
-            subprocess.check_call(f'mkdir -p "{code_dir}"', shell=True)
+            subprocess.check_call(f'mkdir "{code_dir}"', shell=True)
             for c in hparams['save_codes']:
-                subprocess.check_call(f'cp -r "{c}" "{code_dir}/"', shell=True)
+                # TODO
+                subprocess.check_call(f'xcopy "{c}" "{code_dir}/" /s /e /y', shell=True)
             print(f"| Copied codes to {code_dir}.")
             trainer.checkpoint_callback.task = task
             trainer.fit(task)
