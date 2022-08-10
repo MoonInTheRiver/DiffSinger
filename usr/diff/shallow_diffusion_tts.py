@@ -193,7 +193,7 @@ class GaussianDiffusion(nn.Module):
                 ref_mels=None, f0=None, uv=None, energy=None, infer=False, **kwargs):
         b, *_, device = *txt_tokens.shape, txt_tokens.device
         ret = self.fs2(txt_tokens, mel2ph, spk_embed, ref_mels, f0, uv, energy,
-                       skip_decoder=(not infer), infer=infer, **kwargs)
+                       skip_decoder=True, infer=infer, **kwargs)
         cond = ret['decoder_inp'].transpose(1, 2)
 
         if not infer:
@@ -205,6 +205,7 @@ class GaussianDiffusion(nn.Module):
             # nonpadding = (mel2ph != 0).float()
             # ret['diff_loss'] = self.p_losses(x, t, cond, nonpadding=nonpadding)
         else:
+            '''
             ret['fs2_mel'] = ret['mel_out']
             fs2_mels = ret['mel_out']
             t = self.K_step
@@ -216,6 +217,11 @@ class GaussianDiffusion(nn.Module):
                 print('===> gaussion start.')
                 shape = (cond.shape[0], 1, self.mel_bins, cond.shape[2])
                 x = torch.randn(shape, device=device)
+            '''
+            t = self.K_step
+            print('===> gaussion start.')
+            shape = (cond.shape[0], 1, self.mel_bins, cond.shape[2])
+            x = torch.randn(shape, device=device)
             for i in tqdm(reversed(range(0, t)), desc='sample time step', total=t):
                 x = self.p_sample(x, torch.full((b,), i, device=device, dtype=torch.long), cond)
             x = x[:, 0].transpose(1, 2)

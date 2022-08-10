@@ -43,7 +43,7 @@ class HifiGAN(PWG):
         config_path = f'{base_dir}/config.yaml'
         if os.path.exists(config_path):
             ckpt = sorted(glob.glob(f'{base_dir}/model_ckpt_steps_*.ckpt'), key=
-            lambda x: int(re.findall(f'{base_dir}/model_ckpt_steps_(\d+).ckpt', x)[0]))[-1]
+            lambda x: int(re.findall(f'{base_dir}/model_ckpt_steps_(\d+).ckpt', x.replace('\\','/'))[0]))[-1]
             print('| load HifiGAN: ', ckpt)
             self.model, self.config, self.device = load_model(config_path=config_path, checkpoint_path=ckpt)
         else:
