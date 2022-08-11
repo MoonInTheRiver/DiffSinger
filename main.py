@@ -8,7 +8,7 @@ import torch
 
 from inference.svs.ds_e2e import DiffSingerE2EInfer
 
-root_dir = os.path.dirname(__file__)
+root_dir = os.path.dirname(os.path.abspath(__file__))
 os.environ['PYTHONPATH'] = f'"{root_dir}"'
 
 parser = argparse.ArgumentParser(description='Run DiffSinger inference')

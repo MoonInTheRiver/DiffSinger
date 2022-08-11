@@ -45,7 +45,7 @@ def set_hparams(config='', exp_name='', hparams_str='', print_hparams=True, glob
     loaded_config = set()
 
     def load_config(config_fn):  # deep first
-        with open(config_fn) as f:
+        with open(config_fn, encoding='utf-8') as f:
             hparams_ = yaml.safe_load(f)
         loaded_config.add(config_fn)
         if 'base_config' in hparams_:
@@ -71,7 +71,7 @@ def set_hparams(config='', exp_name='', hparams_str='', print_hparams=True, glob
         ckpt_config_path = f'{args_work_dir}/config.yaml'
         if os.path.exists(ckpt_config_path):
             try:
-                with open(ckpt_config_path) as f:
+                with open(ckpt_config_path, encoding='utf-8') as f:
                     saved_hparams.update(yaml.safe_load(f))
             except:
                 pass
