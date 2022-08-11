@@ -95,7 +95,7 @@ class TtsTask(BaseTask):
     def build_phone_encoder(self, data_dir):
         phone_list_file = os.path.join(data_dir, 'phone_set.json')
 
-        phone_list = json.load(open(phone_list_file))
+        phone_list = json.load(open(phone_list_file, encoding='utf-8'))
         return TokenTextEncoder(None, vocab_list=phone_list, replace_oov=',')
 
     def build_optimizer(self, model):

@@ -85,11 +85,11 @@ class BaseBinarizer:
         ph_set = []
         if hparams['reset_phone_dict'] or not os.path.exists(ph_set_fn):
             for processed_data_dir in self.processed_data_dirs:
-                ph_set += [x.split(' ')[0] for x in open(f'{processed_data_dir}/dict.txt').readlines()]
+                ph_set += [x.split(' ')[0] for x in open(f'{processed_data_dir}/dict.txt', encoding='utf-8').readlines()]
             ph_set = sorted(set(ph_set))
-            json.dump(ph_set, open(ph_set_fn, 'w'))
+            json.dump(ph_set, open(ph_set_fn, 'w', encoding='utf-8'))
         else:
-            ph_set = json.load(open(ph_set_fn, 'r'))
+            ph_set = json.load(open(ph_set_fn, 'r', encoding='utf-8'))
         print("| phone set: ", ph_set)
         return build_phone_encoder(hparams['binary_data_dir'])
 
@@ -113,7 +113,7 @@ class BaseBinarizer:
         self.spk_map = self.build_spk_map()
         print("| spk_map: ", self.spk_map)
         spk_map_fn = f"{hparams['binary_data_dir']}/spk_map.json"
-        json.dump(self.spk_map, open(spk_map_fn, 'w'))
+        json.dump(self.spk_map, open(spk_map_fn, 'w', encoding='utf-8'))
 
         self.phone_encoder = self._phone_encoder()
         self.process_data('valid')

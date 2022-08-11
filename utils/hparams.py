@@ -96,7 +96,7 @@ def set_hparams(config='', exp_name='', hparams_str='', print_hparams=True, glob
 
     if args_work_dir != '' and (not os.path.exists(ckpt_config_path) or args.reset) and not args.infer:
         os.makedirs(hparams_['work_dir'], exist_ok=True)
-        with open(ckpt_config_path, 'w') as f:
+        with open(ckpt_config_path, 'w', encoding='utf-8') as f:
             yaml.safe_dump(hparams_, f)
 
     hparams_['infer'] = args.infer
