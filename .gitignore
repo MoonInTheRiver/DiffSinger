@@ -4,6 +4,7 @@ __pycache__/
 *.sh
 local_tools/
 *.ckpt
+*.pth
 *.wav
 infer_out/
 config.yaml
