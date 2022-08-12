@@ -14,7 +14,7 @@ from vocoders.pwg import PWG
 from vocoders.vocoder_utils import denoise
 
 
-def load_model(config_path, checkpoint_path):
+def load_model(config_path, file_path):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     ext = os.path.splitext(file_path)[-1]
     if ext == '.pth':
