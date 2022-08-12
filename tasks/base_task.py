@@ -251,7 +251,7 @@ class BaseTask(nn.Module):
             t = datetime.now().strftime('%Y%m%d%H%M%S')
             code_dir = f'{work_dir}/codes/{t}'
             # TODO: test filesystem calls
-            os.mkdir(code_dir)
+            os.makedirs(code_dir, exist_ok=True)
             # subprocess.check_call(f'mkdir "{code_dir}"', shell=True)
             for c in hparams['save_codes']:
                 shutil.copytree(c, code_dir, dirs_exist_ok=True)
