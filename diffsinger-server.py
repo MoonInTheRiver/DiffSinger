@@ -98,6 +98,7 @@ def acoustic(ustpath:str):
         "ph_dur":" ".join(ph_dur),
         "is_slur_seq":" ".join(is_slur_seq)
     }
+    #合成
     DiffSingerE2EInfer.example_run(inp, target=ustpath[:-4]+".wav")
     
 def main():
@@ -131,3 +132,6 @@ def main():
 
         print('Sending response: %s' % response)
         socket.send_string(json.dumps(response))
+
+if(__name__=="__main__"):
+    main()
