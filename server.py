@@ -80,8 +80,8 @@ def acoustic(ustpath:str):
             if(block["name"]=="SETTING"):#音轨信息块
                 tempo=float(block["Tempo"])
                 project=block["Project"]
-                voiceDir=block["voiceDir"]
-                cacheDir=block["cacheDir"]
+                voiceDir=block["VoiceDir"]
+                cacheDir=block["CacheDir"]
             elif(block["name"].isdigit()):#音符
                 lyric=block["Lyric"]
                 notenum=int(block["NoteNum"])
@@ -89,7 +89,7 @@ def acoustic(ustpath:str):
                 if(lyric!="R"):
                     ph_seq.append(lyric)
                     note_seq.append(notedict[notenum%12]+str(notenum//12-1))
-                    ph_dur.append(length/(tempo*8))
+                    ph_dur.append(str(length/(tempo*8)))
                     is_slur_seq.append("0")
     
     inp={
