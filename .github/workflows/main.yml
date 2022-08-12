@@ -26,7 +26,7 @@ jobs:
         location: ${{ github.workspace }}
 
     - name: Extract Winpython
-      run: 7z x -o"${{ github.workspace }}/Winpython64-3.8.10.0dot.exe" "${{ github.workspace }}"
+      run: 7z x -o"${{ github.workspace }}" "${{ github.workspace }}/Winpython64-3.8.10.0dot.exe"
 
     - name: Install python libraries
       run: .\build.bat
