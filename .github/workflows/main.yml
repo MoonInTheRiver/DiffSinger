@@ -37,5 +37,5 @@ jobs:
     - name: upload
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: diffsinger-server\${{ inputs.version }}.zip
+        name: diffsinger-server-${{ inputs.version }}.zip
         path: ${{ github.workspace }}\diffsinger-server.zip
