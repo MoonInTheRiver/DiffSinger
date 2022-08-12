@@ -59,8 +59,8 @@ class SingingBinarizer(BaseBinarizer):
                 item_name = raw_item_name = piece_path[len(processed_data_dir)+1:].replace('/', '-')[:-len(wav_suffix)]
                 if len(self.processed_data_dirs) > 1:
                     item_name = f'ds{ds_id}_{item_name}'
-                self.item2txt[item_name] = open(f'{piece_path.replace(wav_suffix, txt_suffix)}').readline()
-                self.item2ph[item_name] = open(f'{piece_path.replace(wav_suffix, ph_suffix)}').readline()
+                self.item2txt[item_name] = open(f'{piece_path.replace(wav_suffix, txt_suffix)}', encoding='utf-8').readline()
+                self.item2ph[item_name] = open(f'{piece_path.replace(wav_suffix, ph_suffix)}', encoding='utf-8').readline()
                 self.item2wavfn[item_name] = piece_path
 
                 self.item2spk[item_name] = re.split('-|#', piece_path.split('/')[-2])[0]
@@ -106,10 +106,10 @@ class SingingBinarizer(BaseBinarizer):
             for ph_sent in self.item2ph.values():
                 ph_set += ph_sent.split(' ')
             ph_set = sorted(set(ph_set))
-            json.dump(ph_set, open(ph_set_fn, 'w'))
+            json.dump(ph_set, open(ph_set_fn, 'w', encoding='utf-8'))
             print("| Build phone set: ", ph_set)
         else:
-            ph_set = json.load(open(ph_set_fn, 'r'))
+            ph_set = json.load(open(ph_set_fn, 'r', encoding='utf-8'))
             print("| Load phone set: ", ph_set)
         return build_phone_encoder(hparams['binary_data_dir'])
 
@@ -189,7 +189,7 @@ class MidiSingingBinarizer(SingingBinarizer):
 
     def load_meta_data(self):
         for ds_id, processed_data_dir in enumerate(self.processed_data_dirs):
-            meta_midi = json.load(open(os.path.join(processed_data_dir, 'meta.json')))   # [list of dict]
+            meta_midi = json.load(open(os.path.join(processed_data_dir, 'meta.json'), encoding='utf-8'))   # [list of dict]
 
             for song_item in meta_midi:
                 item_name = raw_item_name = song_item['item_name']
@@ -303,7 +303,7 @@ class OpencpopBinarizer(MidiSingingBinarizer):
     def load_meta_data(self):
         raw_data_dir = hparams['raw_data_dir']
         # meta_midi = json.load(open(os.path.join(raw_data_dir, 'meta.json')))   # [list of dict]
-        utterance_labels = open(os.path.join(raw_data_dir, 'transcriptions.txt')).readlines()
+        utterance_labels = open(os.path.join(raw_data_dir, 'transcriptions.txt'), encoding='utf-8').readlines()
 
         for utterance_label in utterance_labels:
             song_info = utterance_label.split('|')

@@ -137,7 +137,7 @@ class HDF5ScpLoader(object):
 
         """
         self.default_hdf5_path = default_hdf5_path
-        with open(feats_scp) as f:
+        with open(feats_scp, encoding='utf-8') as f:
             lines = [line.replace("\n", "") for line in f.readlines()]
         self.data = {}
         for line in lines:

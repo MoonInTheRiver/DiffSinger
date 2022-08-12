@@ -81,7 +81,7 @@ class GradioInfer:
 
 
 if __name__ == '__main__':
-    gradio_config = yaml.safe_load(open('inference/svs/gradio/gradio_settings.yaml'))
+    gradio_config = yaml.safe_load(open('inference/svs/gradio/gradio_settings.yaml', encoding='utf-8'))
     g = GradioInfer(**gradio_config)
     g.run()
 

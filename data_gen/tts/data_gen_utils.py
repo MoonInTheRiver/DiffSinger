@@ -273,7 +273,7 @@ class TextGrid(object):
 
 def get_mel2ph(tg_fn, ph, mel, hparams):
     ph_list = ph.split(" ")
-    with open(tg_fn, "r") as f:
+    with open(tg_fn, "r", encoding='utf-8') as f:
         tg = f.readlines()
     tg = remove_empty_lines(tg)
     tg = TextGrid(tg)
@@ -339,7 +339,7 @@ def get_mel2ph(tg_fn, ph, mel, hparams):
 
 def build_phone_encoder(data_dir):
     phone_list_file = os.path.join(data_dir, 'phone_set.json')
-    phone_list = json.load(open(phone_list_file))
+    phone_list = json.load(open(phone_list_file, encoding='utf-8'))
     return TokenTextEncoder(None, vocab_list=phone_list, replace_oov=',')
 
 

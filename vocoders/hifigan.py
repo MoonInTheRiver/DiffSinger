@@ -21,7 +21,7 @@ def load_model(config_path, checkpoint_path):
         config = set_hparams(config_path, global_hparams=False)
         state = ckpt_dict["state_dict"]["model_gen"]
     elif '.json' in config_path:
-        config = json.load(open(config_path, 'r'))
+        config = json.load(open(config_path, 'r', encoding='utf-8'))
         state = ckpt_dict["generator"]
 
     model = HifiGanGenerator(config)
