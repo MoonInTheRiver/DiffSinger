@@ -57,6 +57,8 @@ def readblocks(ustfile):
 def acoustic(ustpath:str):
     #解析ust文件为diffsinger所需格式
     #参考：main.py
+    wavpath=ustpath[:-4]+".wav"
+
     tempo=120
     project=""
     voiceDir=""
@@ -94,8 +96,11 @@ def acoustic(ustpath:str):
         'input_type': 'phoneme'
     }
     #合成
-    DiffSingerE2EInfer.example_run(inp, target=ustpath[:-4]+".wav")
-    
+    DiffSingerE2EInfer.example_run(inp, target=wavpath)
+    return {
+        'path_wav': wavpath,
+    }
+
 #为了方便调试，把argv配置放外面
 root_dir = os.path.dirname(__file__)
 sys.argv = [
