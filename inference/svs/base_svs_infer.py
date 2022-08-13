@@ -47,15 +47,19 @@ class BaseSVSInfer:
     def build_vocoder(self):
         base_dir = hparams['vocoder_ckpt']
         config_path = f'{base_dir}/config.yaml'
-        ckpt = sorted(glob.glob(f'{base_dir}/model_ckpt_steps_*.ckpt'), key=
-        lambda x: int(re.findall(f'{base_dir}/model_ckpt_steps_(\d+).ckpt', x.replace('\\','/'))[0]))[-1]
-        print('| load HifiGAN: ', ckpt)
-        ckpt_dict = torch.load(ckpt, map_location="cpu")
-        config = set_hparams(config_path, global_hparams=False)
-        state = ckpt_dict["state_dict"]["model_gen"]
-        vocoder = HifiGanGenerator(config)
-        vocoder.load_state_dict(state, strict=True)
-        vocoder.remove_weight_norm()
+        file_path = sorted(glob.glob(f'{base_dir}/model_ckpt_steps_*.*'), key=
+        lambda x: int(re.findall(f'{base_dir}/model_ckpt_steps_(\d+).*', x.replace('\\','/'))[0]))[-1]
+        print('| load HifiGAN: ', file_path)
+        ext = os.path.splitext(file_path)[-1]
+        if ext == '.pth':
+            vocoder = torch.load(file_path, map_location="cpu")
+        elif ext == '.ckpt':
+            ckpt_dict = torch.load(file_path, map_location="cpu")
+            config = set_hparams(config_path, global_hparams=False)
+            state = ckpt_dict["state_dict"]["model_gen"]
+            vocoder = HifiGanGenerator(config)
+            vocoder.load_state_dict(state, strict=True)
+            vocoder.remove_weight_norm()
         vocoder = vocoder.eval().to(self.device)
         return vocoder
 

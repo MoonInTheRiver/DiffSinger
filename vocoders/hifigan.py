@@ -14,21 +14,28 @@ from vocoders.pwg import PWG
 from vocoders.vocoder_utils import denoise
 
 
-def load_model(config_path, checkpoint_path):
+def load_model(config_path, file_path):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    ckpt_dict = torch.load(checkpoint_path, map_location="cpu")
-    if '.yaml' in config_path:
-        config = set_hparams(config_path, global_hparams=False)
-        state = ckpt_dict["state_dict"]["model_gen"]
-    elif '.json' in config_path:
-        config = json.load(open(config_path, 'r', encoding='utf-8'))
-        state = ckpt_dict["generator"]
-
-    model = HifiGanGenerator(config)
-    model.load_state_dict(state, strict=True)
-    model.remove_weight_norm()
+    ext = os.path.splitext(file_path)[-1]
+    if ext == '.pth':
+        if '.yaml' in config_path:
+            config = set_hparams(config_path, global_hparams=False)
+        elif '.json' in config_path:
+            config = json.load(open(config_path, 'r', encoding='utf-8'))
+        model = torch.load(file_path, map_location="cpu")
+    elif ext == '.ckpt':
+        ckpt_dict = torch.load(file_path, map_location="cpu")
+        if '.yaml' in config_path:
+            config = set_hparams(config_path, global_hparams=False)
+            state = ckpt_dict["state_dict"]["model_gen"]
+        elif '.json' in config_path:
+            config = json.load(open(config_path, 'r', encoding='utf-8'))
+            state = ckpt_dict["generator"]
+        model = HifiGanGenerator(config)
+        model.load_state_dict(state, strict=True)
+        model.remove_weight_norm()
     model = model.eval().to(device)
-    print(f"| Loaded model parameters from {checkpoint_path}.")
+    print(f"| Loaded model parameters from {file_path}.")
     print(f"| HifiGAN device: {device}.")
     return model, config, device
 
@@ -42,15 +49,15 @@ class HifiGAN(PWG):
         base_dir = hparams['vocoder_ckpt']
         config_path = f'{base_dir}/config.yaml'
         if os.path.exists(config_path):
-            ckpt = sorted(glob.glob(f'{base_dir}/model_ckpt_steps_*.ckpt'), key=
-            lambda x: int(re.findall(f'{base_dir}/model_ckpt_steps_(\d+).ckpt', x.replace('\\','/'))[0]))[-1]
-            print('| load HifiGAN: ', ckpt)
-            self.model, self.config, self.device = load_model(config_path=config_path, checkpoint_path=ckpt)
+            file_path = sorted(glob.glob(f'{base_dir}/model_ckpt_steps_*.*'), key=
+            lambda x: int(re.findall(f'{base_dir}/model_ckpt_steps_(\d+).*', x.replace('\\','/'))[0]))[-1]
+            print('| load HifiGAN: ', file_path)
+            self.model, self.config, self.device = load_model(config_path=config_path, file_path=file_path)
         else:
             config_path = f'{base_dir}/config.json'
             ckpt = f'{base_dir}/generator_v1'
             if os.path.exists(config_path):
-                self.model, self.config, self.device = load_model(config_path=config_path, checkpoint_path=ckpt)
+                self.model, self.config, self.device = load_model(config_path=config_path, file_path=file_path)
 
     def spec2wav(self, mel, **kwargs):
         device = self.device
