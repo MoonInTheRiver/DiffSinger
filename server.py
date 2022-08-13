@@ -61,14 +61,6 @@ def acoustic(ustpath:str):
     project=""
     voiceDir=""
     cacheDir=""
-
-    inp = {
-        'ph_seq': 'x iao j iu w o ch ang ang j ie ie m ao AP sh i n i z ui m ei d e j i h ao',
-        'note_seq': 'C#4/Db4 C#4/Db4 F#4/Gb4 F#4/Gb4 G#4/Ab4 G#4/Ab4 A#4/Bb4 A#4/Bb4 F#4/Gb4 F#4/Gb4 F#4/Gb4 C#4/Db4 C#4/Db4 C#4/Db4 rest C#4/Db4 C#4/Db4 A#4/Bb4 A#4/Bb4 G#4/Ab4 G#4/Ab4 A#4/Bb4 A#4/Bb4 G#4/Ab4 G#4/Ab4 F4 F4 C#4/Db4 C#4/Db4',
-        'ph_dur': '0.407140 0.407140 0.376190 0.376190 0.242180 0.242180 0.509550 0.509550 0.183420 0.315400 0.315400 0.235020 0.361660 0.361660 0.223070 0.377270 0.377270 0.340550 0.340550 0.299620 0.299620 0.344510 0.344510 0.283770 0.283770 0.323390 0.323390 0.360340 0.360340',
-        'is_slur_seq': '0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0',
-        'input_type': 'phoneme'
-    }#这是输入格式，需要填数据
     
     ph_seq=[]
     note_seq=[]
@@ -93,25 +85,30 @@ def acoustic(ustpath:str):
                     is_slur_seq.append("0")
     
     inp={
+        "text":"",
         "ph_seq":" ".join(ph_seq),
         "note_seq":" ".join(note_seq),
         "ph_dur":" ".join(ph_dur),
-        "is_slur_seq":" ".join(is_slur_seq)
+        "note_dur_seq":" ".join(ph_dur),
+        "is_slur_seq":" ".join(is_slur_seq),
+        'input_type': 'phoneme'
     }
     #合成
     DiffSingerE2EInfer.example_run(inp, target=ustpath[:-4]+".wav")
     
+#为了方便调试，把argv配置放外面
+root_dir = os.path.dirname(__file__)
+sys.argv = [
+f'{root_dir}/inference/svs/ds_e2e.py',
+'--config',
+f'{root_dir}/usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml',
+'--exp_name',
+'0228_opencpop_ds100_rel']
+
 def main():
     context = zmq.Context()
     socket = context.socket(zmq.REP)
     socket.bind('tcp://*:38442')
-    root_dir = os.path.dirname(__file__)
-    sys.argv = [
-    f'{root_dir}/inference/svs/ds_e2e.py',
-    '--config',
-    f'{root_dir}/usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml',
-    '--exp_name',
-    '0228_opencpop_ds100_rel']
     print('Started diffsinger server')
 
     for message in poll_socket(socket):
