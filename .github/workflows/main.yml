@@ -8,7 +8,7 @@ on:
         type: string
 
 jobs:
-  pack:
+  pack-windows:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -30,6 +30,9 @@ jobs:
 
     - name: Install python packages
       run: .\build.bat
+
+    - name: remove Winpython installer
+      run: del "${{ github.workspace }}/Winpython64-3.8.10.0dot.exe"
 
     - name: pack
       run: 7z a .\diffsinger-server.zip .\*
