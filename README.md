@@ -21,7 +21,7 @@ This repository is the official PyTorch implementation of our AAAI-2022 [paper](
 </table>
 
 :tada: :tada: :tada: **Updates**:
- - Jul.27, 2022: Update documents for [SVS](docs/README-SVS.md). Add [easy inference](docs/README-SVS-opencpop-cascade.md#4-inference-from-raw-inputs); Add Interactive SVS running on [HuggingFace🤗 SVS](https://huggingface.co/spaces/Silentlin/DiffSinger).
+ - Jul.27, 2022: Update documents for [SVS](docs/README-SVS.md). Add easy inference [A](docs/README-SVS-opencpop-cascade.md#4-inference-from-raw-inputs) & [B](docs/README-SVS-opencpop-e2e.md#4-inference-from-raw-inputs); Add Interactive SVS running on [HuggingFace🤗 SVS](https://huggingface.co/spaces/Silentlin/DiffSinger).
  - Mar.2, 2022: MIDI-B-version.
  - Mar.1, 2022: [NeuralSVB](https://github.com/MoonInTheRiver/NeuralSVB), for singing voice beautifying, has been released.
  - Feb.13, 2022: [NATSpeech](https://github.com/NATSpeech/NATSpeech), the improved code framework, which contains the implementations of DiffSpeech and our NeurIPS-2021 work [PortaSpeech](https://openreview.net/forum?id=xmJsuh8xlq) has been released. 
