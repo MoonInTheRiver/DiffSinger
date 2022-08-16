@@ -26,7 +26,8 @@ class Prenet(nn.Module):
         :param x: [B, T, 80]
         :return: [L, B, T, H], [B, T, H]
         """
-        padding_mask = x.abs().sum(-1).eq(0).data  # [B, T]
+        # padding_mask = x.abs().sum(-1).eq(0).data  # [B, T]
+        padding_mask = x.abs().sum(-1).eq(0).detach()
         nonpadding_mask_TB = 1 - padding_mask.float()[:, None, :]  # [B, 1, T]
         x = x.transpose(1, 2)
         hiddens = []
