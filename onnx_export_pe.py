@@ -20,38 +20,31 @@ sys.argv = [
 ]
 
 if __name__ == '__main__':
-
     set_hparams(print_hparams=False)
 
     dev = 'cuda'
 
     infer_ins = e2e.DiffSingerE2EInfer(hparams)
-    infer_ins.vocoder.to(dev)
+    infer_ins.pe.to(dev)
     with torch.no_grad():
-        x = torch.rand(1, 80, 968).to(dev)
-        f0 = torch.rand(1, 968).to(dev)
+        mel_input = torch.rand(1, 968, 80).to(dev)
 
         torch.onnx.export(
-            infer_ins.vocoder,
+            infer_ins.pe,
             (
-                x,
-                f0
+                mel_input
             ),
-            "hifigan.onnx",
+            "xiaoma_pe.onnx",
             verbose=True,
-            input_names=["x", "f0"],
+            input_names=["mel_input"],
             dynamic_axes={
-                "x": {
+                "mel_input": {
                     0: "batch_size",
-                    1: "num_mel_bin",
-                    2: "frames",
-                },
-                "f0": {
-                    0: "batch_size",
-                    1: "frames"
+                    1: "frames",
+                    2: "num_mel_bin",
                 }
             },
-            opset_version=11,
+            opset_version=11
         )
 
     print("OK")
