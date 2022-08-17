@@ -6,6 +6,10 @@ from utils.cwt import cwt2f0
 from utils.hparams import hparams
 from utils.pitch_utils import f0_to_coarse, denorm_f0, norm_f0
 from modules.fastspeech.fs2 import FastSpeech2
+from utils.text_encoder import TokenTextEncoder
+from data_gen.tts.txt_processors.zh_g2pM import ALL_YUNMU
+from torch.nn import functional as F
+import torch
 
 
 class FastspeechMIDIEncoder(FastspeechEncoder):
@@ -47,10 +51,41 @@ class FastSpeech2MIDI(FastSpeech2):
     def __init__(self, dictionary, out_dims=None):
         super().__init__(dictionary, out_dims)
         del self.encoder
+        
         self.encoder = FS_ENCODERS[hparams['encoder_type']](hparams, self.encoder_embed_tokens, self.dictionary)
         self.midi_embed = Embedding(300, self.hidden_size, self.padding_idx)
         self.midi_dur_layer = Linear(1, self.hidden_size)
         self.is_slur_embed = Embedding(2, self.hidden_size)
+        yunmu = ['AP', 'SP'] + ALL_YUNMU 
+        yunmu.remove('ng')
+        self.vowel_tokens = [dictionary.encode(ph)[0] for ph in yunmu]
+        
+    def add_dur(self, dur_input, mel2ph, txt_tokens, ret, midi_dur = None):
+        src_padding = txt_tokens == 0
+        dur_input = dur_input.detach() + hparams['predictor_grad'] * (dur_input - dur_input.detach())
+        if mel2ph is None:
+            dur, xs = self.dur_predictor.inference(dur_input, src_padding)
+            ret['dur'] = xs
+            dur = xs.squeeze(-1).exp() - 1.0
+            for i in range(len(dur)):
+                for j in range(len(dur[i])):
+                    if txt_tokens[i,j] in self.vowel_tokens:
+                        if j < len(dur[i])-1 and txt_tokens[i,j+1] not in self.vowel_tokens:
+                            dur[i,j] = midi_dur[i,j] - dur[i,j+1]
+                            if dur[i,j] < 0:
+                                dur[i,j] = 0
+                                dur[i,j+1] = midi_dur[i,j]
+                        else:
+                            dur[i,j]=midi_dur[i,j]      
+            dur[:,0] = dur[:,0] + 0.5
+            dur_acc = F.pad(torch.round(torch.cumsum(dur, axis=1)), (1,0))
+            dur = torch.clamp(dur_acc[:,1:]-dur_acc[:,:-1], min=0).long()
+            ret['dur_choice'] = dur
+            mel2ph = self.length_regulator(dur, src_padding).detach()
+        else:
+            ret['dur'] = self.dur_predictor(dur_input, src_padding)
+        ret['mel2ph'] = mel2ph
+        return mel2ph
 
     def forward(self, txt_tokens, mel2ph=None, spk_embed=None,
                 ref_mels=None, f0=None, uv=None, energy=None, skip_decoder=False,
@@ -92,7 +127,7 @@ class FastSpeech2MIDI(FastSpeech2):
         # add dur
         dur_inp = (encoder_out + var_embed + spk_embed_dur) * src_nonpadding
 
-        mel2ph = self.add_dur(dur_inp, mel2ph, txt_tokens, ret)
+        mel2ph = self.add_dur(dur_inp, mel2ph, txt_tokens, ret, midi_dur=kwargs['midi_dur']*hparams['audio_sample_rate']/hparams['hop_size'])
 
         decoder_inp = F.pad(encoder_out, [0, 0, 1, 0])
 
