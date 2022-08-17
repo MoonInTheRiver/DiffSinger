@@ -123,8 +123,6 @@ if __name__ == '__main__':
     }  # user input: Chinese characters
 
     set_hparams(print_hparams=False)
-    spec_min= torch.FloatTensor(hparams['spec_min'])[None, None, :hparams['keep_bins']]
-    spec_max= torch.FloatTensor(hparams['spec_max'])[None, None, :hparams['keep_bins']]
 
     dev = 'cuda'
 

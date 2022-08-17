@@ -60,18 +60,18 @@ class TestAllInfer(e2e.DiffSingerE2EInfer):
         self.spk_map = {'opencpop': 0}
 
         print("load pe")
-        self.pe2 = ort.InferenceSession("xiaoma_pe.onnx")
+        self.pe2 = ort.InferenceSession("xiaoma_pe.onnx", providers=["CUDAExecutionProvider"])
         print("load hifigan")
-        self.vocoder2 = ort.InferenceSession("hifigan.onnx")
+        self.vocoder2 = ort.InferenceSession("hifigan.onnx", providers=["CUDAExecutionProvider"])
         print("load singer_fs")
-        self.model2 = ort.InferenceSession("singer_fs.onnx")
+        self.model2 = ort.InferenceSession("singer_fs.onnx", providers=["CUDAExecutionProvider"])
         ips = self.model2.get_inputs()
         print(len(ips))
         for i in range(0, len(ips)):
             print(f'{i}. {ips[i].name}')
 
         print("load singer_denoise")
-        self.model3 = ort.InferenceSession("singer_denoise.onnx")
+        self.model3 = ort.InferenceSession("singer_denoise.onnx", providers=["CUDAExecutionProvider"])
         ips = self.model3.get_inputs()
         print(len(ips))
         for i in range(0, len(ips)):
