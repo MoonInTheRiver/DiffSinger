@@ -9,7 +9,10 @@ from utils import load_ckpt
 from utils.audio import save_wav
 from utils.hparams import set_hparams, hparams
 
+import acoustic.dfs_models as adm
+
 import torch
+import numpy as np
 
 from utils.text_encoder import TokenTextEncoder
 from usr.diffsinger_task import DIFF_DECODERS
@@ -26,19 +29,30 @@ sys.argv = [
 ]
 
 
-class GaussianDiffusionWrap(GaussianDiffusion):
-    def forward(self, txt_tokens, mel2ph,
+class GaussianDiffusionWrap(adm.GaussianDiffusionFS):
+    def forward(self, txt_tokens,
                 # Wrapped Arguments
                 spk_id,
                 pitch_midi,
                 midi_dur,
                 is_slur,
+                mel2ph,
                 ):
 
+        print(f"txt_tokens: {txt_tokens}")
+        print(f"spk_id: {spk_id}")
+        print(f"pitch_midi: {pitch_midi}")
+        print(f"midi_dur: {midi_dur}")
+        print(f"is_slur: {is_slur}")
+        print(f"mel2ph: {mel2ph}")
+
+        if (mel2ph[0].item() == 0):
+            mel2ph = None
+        else:
+            mel2ph = mel2ph[1].item()
+        
         if (torch.numel(txt_tokens) == 0):
             txt_tokens = None
-        if (torch.numel(mel2ph) == 0):
-            mel2ph = None
         if (torch.numel(spk_id) == 0):
             spk_id = None
         if (torch.numel(pitch_midi) == 0):
@@ -57,7 +71,8 @@ class DFSInferWrapped(e2e.DiffSingerE2EInfer):
     def build_model(self):
         model = GaussianDiffusionWrap(
             phone_encoder=self.ph_encoder,
-            out_dims=hparams['audio_num_mel_bins'], denoise_fn=DIFF_DECODERS[hparams['diff_decoder_type']](hparams),
+            out_dims=hparams['audio_num_mel_bins'], denoise_fn=DIFF_DECODERS[hparams['diff_decoder_type']](
+                hparams),
             timesteps=hparams['timesteps'],
             K_step=hparams['K_step'],
             loss_type=hparams['diff_loss_type'],
@@ -71,8 +86,32 @@ class DFSInferWrapped(e2e.DiffSingerE2EInfer):
             self.pe = PitchExtractor().to(self.device)
             load_ckpt(self.pe, hparams['pe_ckpt'], 'model', strict=True)
             self.pe.eval()
-        
+
         return model
+
+
+class DFSInferWrapped2(e2e.DiffSingerE2EInfer):
+    def build_model(self):
+        model = adm.GaussianDiffusionDenoise(
+            phone_encoder=self.ph_encoder,
+            out_dims=hparams['audio_num_mel_bins'], denoise_fn=DIFF_DECODERS[hparams['diff_decoder_type']](
+                hparams),
+            timesteps=hparams['timesteps'],
+            K_step=hparams['K_step'],
+            loss_type=hparams['diff_loss_type'],
+            spec_min=hparams['spec_min'], spec_max=hparams['spec_max'],
+        )
+
+        model.eval()
+        load_ckpt(model, hparams['work_dir'], 'model')
+
+        if hparams.get('pe_enable') is not None and hparams['pe_enable']:
+            self.pe = PitchExtractor().to(self.device)
+            load_ckpt(self.pe, hparams['pe_ckpt'], 'model', strict=True)
+            self.pe.eval()
+
+        return model
+
 
 if __name__ == '__main__':
 
@@ -84,31 +123,51 @@ if __name__ == '__main__':
     }  # user input: Chinese characters
 
     set_hparams(print_hparams=False)
+    spec_min= torch.FloatTensor(hparams['spec_min'])[None, None, :hparams['keep_bins']]
+    spec_max= torch.FloatTensor(hparams['spec_max'])[None, None, :hparams['keep_bins']]
 
     dev = 'cuda'
 
     infer_ins = DFSInferWrapped(hparams)
     infer_ins.model.to(dev)
 
+    infer_ins2 = DFSInferWrapped2(hparams)
+    infer_ins2.model.to(dev)
+
+    adm.device = dev
+
     with torch.no_grad():
-        inp = infer_ins.preprocess_input(inp, input_type=inp['input_type'] if inp.get('input_type') else 'word')
+        inp = infer_ins.preprocess_input(
+            inp, input_type=inp['input_type'] if inp.get('input_type') else 'word')
         sample = infer_ins.input_to_batch(inp)
         txt_tokens = sample['txt_tokens']  # [B, T_t]
         spk_id = sample.get('spk_ids')
+
+        print(txt_tokens)
+        print(spk_id)
+        print(sample['pitch_midi'])
+        print(sample['midi_dur'])
+        print(sample['is_slur'])
+        print(sample['mel2ph'])
 
         torch.onnx.export(
             infer_ins.model,
             (
                 txt_tokens.to(dev),
-                {
-                    'spk_id': spk_id.to(dev),
-                    'pitch_midi': sample['pitch_midi'].to(dev),
-                    'midi_dur': sample['midi_dur'].to(dev),
-                    'is_slur': spk_id.to(dev),
-                    'mel2ph': spk_id.to(dev)
-                }
+                # {
+                #     'spk_id': spk_id.to(dev),
+                #     'pitch_midi': sample['pitch_midi'].to(dev),
+                #     'midi_dur': sample['midi_dur'].to(dev),
+                #     'is_slur': spk_id.to(dev),
+                #     'mel2ph': spk_id.to(dev)
+                # }
+                spk_id.to(dev),
+                sample['pitch_midi'].to(dev),
+                sample['midi_dur'].to(dev),
+                sample['is_slur'].to(dev),
+                torch.from_numpy(np.array([0, 0]).astype(np.int64)).to(dev),
             ),
-            "singer.onnx",
+            "singer_fs.onnx",
             # verbose=True,
             input_names=["txt_tokens", "spk_id",
                          "pitch_midi", "midi_dur", "is_slur", "mel2ph"],
@@ -132,10 +191,41 @@ if __name__ == '__main__':
                 "is_slur": {
                     0: "a",
                     1: "b",
+                }
+            },
+            opset_version=11
+        )
+
+        # fs_res = infer_ins.model(txt_tokens, spk_id=spk_id, ref_mels=None, infer=True,
+        #                          pitch_midi=sample['pitch_midi'], midi_dur=sample['midi_dur'],
+        #                          is_slur=sample['is_slur'], mel2ph=sample['mel2ph'])
+        # cond = fs_res.transpose(1, 2)
+        # shape = (cond.shape[0], 1, infer_ins.model.mel_bins, cond.shape[2])
+        # x = torch.randn(shape, device=dev)
+
+        torch.onnx.export(
+            infer_ins2.model,
+            (
+                torch.rand(1, 1, 80, 967).to(dev),
+                torch.full((1,), 1, dtype=torch.long).to(dev),
+                torch.rand(1, 256, 967).to(dev),
+            ),
+            "singer_denoise.onnx",
+            input_names=[
+                "x",
+                "t",
+                "cond",
+            ],
+            dynamic_axes={
+                "x": {
+                    0: "batch_size",
+                    2: "num_mel_bin",
+                    3: "frames",
                 },
-                "mel2ph": {
-                    0: "a",
-                    1: "b",
+                "cond": {
+                    0: "batch_size",
+                    1: "what",
+                    2: "frames",
                 }
             },
             opset_version=11
