@@ -80,15 +80,21 @@ def acoustic(ustpath:str):
                 lyric=block["Lyric"]
                 notenum=int(block["NoteNum"])
                 length=int(block["Length"])
-                if(lyric!="R"):
+                if(lyric=="-"):#；连音符
+                    ph_seq.append(ph_seq[-1])
+                    note_seq.append(notedict[notenum%12]+str(notenum//12-1))
+                    ph_dur.append(str(length/(tempo*8)))
+                    is_slur_seq.append("1")
+                elif(lyric!="R"):
                     ph_seq.append(lyric)
                     note_seq.append(notedict[notenum%12]+str(notenum//12-1))
                     ph_dur.append(str(length/(tempo*8)))
                     is_slur_seq.append("0")
-    
+    ph_seq=" ".join(ph_seq)
+    print("Phonemes:",ph_seq)
     inp={
         "text":"",
-        "ph_seq":" ".join(ph_seq),
+        "ph_seq":ph_seq,
         "note_seq":" ".join(note_seq),
         "ph_dur":" ".join(ph_dur),
         "note_dur_seq":" ".join(ph_dur),
@@ -118,8 +124,8 @@ def main():
 
     for message in poll_socket(socket):
         request = json.loads(message)
+        print("="*40)
         print('Received request: %s' % request)
-
         response = {}
         try:
             #if request[0] == 'timing':
