@@ -50,7 +50,7 @@ class GaussianDiffusionWrap(adm.GaussianDiffusionFS):
             mel2ph = None
         else:
             mel2ph = mel2ph[1].item()
-        
+
         if (torch.numel(txt_tokens) == 0):
             txt_tokens = None
         if (torch.numel(spk_id) == 0):
@@ -166,7 +166,7 @@ if __name__ == '__main__':
                 torch.from_numpy(np.array([0, 0]).astype(np.int64)).to(dev),
             ),
             "singer_fs.onnx",
-            # verbose=True,
+            verbose=True,
             input_names=["txt_tokens", "spk_id",
                          "pitch_midi", "midi_dur", "is_slur", "mel2ph"],
             dynamic_axes={
@@ -209,6 +209,7 @@ if __name__ == '__main__':
                 torch.rand(1, 256, 967).to(dev),
             ),
             "singer_denoise.onnx",
+            verbose=True,
             input_names=[
                 "x",
                 "t",
@@ -224,7 +225,7 @@ if __name__ == '__main__':
                     0: "batch_size",
                     1: "what",
                     2: "frames",
-                }
+                },
             },
             opset_version=11
         )

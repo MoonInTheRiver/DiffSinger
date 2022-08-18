@@ -142,7 +142,6 @@ class TestAllInfer(e2e.DiffSingerE2EInfer):
                     }
                 )
                 x = torch.from_numpy(res2[0])
-                cond = torch.from_numpy(res2[1])
 
             x = x[:, 0].transpose(1, 2)
 

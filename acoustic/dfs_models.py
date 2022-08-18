@@ -16,4 +16,4 @@ class GaussianDiffusionFS(GaussianDiffusion):
 class GaussianDiffusionDenoise(GaussianDiffusion):
     def forward(self, x, t, cond):
         x = self.p_sample(x, t, cond)
-        return [x, cond]
+        return x
