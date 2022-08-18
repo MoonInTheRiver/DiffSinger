@@ -1,0 +1,44 @@
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号'
+        default: '0.0.0'
+        required: true
+        type: string
+
+jobs:
+  pack-windows:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ 'windows-latest' ]
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Download Winpython
+      uses: carlosperate/download-file-action@v1.0.3
+      with:
+        file-url: https://github.com/winpython/winpython/releases/download/4.3.20210620/Winpython64-3.8.10.0dot.exe
+        file-name: Winpython64-3.8.10.0dot.exe
+        location: ${{ github.workspace }}
+
+    - name: Extract Winpython
+      run: 7z x -o"${{ github.workspace }}" "${{ github.workspace }}/Winpython64-3.8.10.0dot.exe"
+
+    - name: Install python packages
+      run: .\build.bat
+
+    - name: remove Winpython installer
+      run: del "${{ github.workspace }}/Winpython64-3.8.10.0dot.exe"
+
+    - name: pack
+      run: 7z a .\diffsinger-server.zip .\*
+
+    - name: upload
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: diffsinger-server-cpu-${{ inputs.version }}.zip
+        path: ${{ github.workspace }}\diffsinger-server.zip
