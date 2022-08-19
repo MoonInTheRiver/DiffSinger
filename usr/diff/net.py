@@ -70,16 +70,16 @@ class ResidualBlock(nn.Module):
 
         y = self.dilated_conv(y) + conditioner
 
-        # gate, filter = torch.chunk(y, 2, dim=1)
+        gate, filter = torch.chunk(y, 2, dim=1)
         # Using torch.split instead of torch.chunk to avoid using onnx::Slice
-        gate, filter = torch.split(y, torch.div(y.shape[1], 2), dim=1)
+        # gate, filter = torch.split(y, torch.div(y.shape[1], 2), dim=1)
 
         y = torch.sigmoid(gate) * torch.tanh(filter)
 
         y = self.output_projection(y)
-        # residual, skip = torch.chunk(y, 2, dim=1)
+        residual, skip = torch.chunk(y, 2, dim=1)
         # Using torch.split instead of torch.chunk to avoid using onnx::Slice
-        residual, skip = torch.split(y, torch.div(y.shape[1], 2), dim=1)
+        # residual, skip = torch.split(y, torch.div(y.shape[1], 2), dim=1)
         
         return (x + residual) / sqrt(2.0), skip
 

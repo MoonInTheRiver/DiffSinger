@@ -285,7 +285,8 @@ class FFTBlocks(nn.Module):
         :param padding_mask: [B, T]
         :return: [B, T, C] or [L, B, T, C]
         """
-        padding_mask = x.abs().sum(-1).eq(0).data if padding_mask is None else padding_mask
+        # padding_mask = x.abs().sum(-1).eq(0).data if padding_mask is None else padding_mask
+        padding_mask = x.abs().sum(-1).eq(0).detach() if padding_mask is None else padding_mask
         nonpadding_mask_TB = 1 - padding_mask.transpose(0, 1).float()[:, :, None]  # [T, B, 1]
         if self.use_pos_embed:
             positions = self.pos_embed_alpha * self.embed_positions(x[..., 0])
@@ -332,7 +333,8 @@ class FastspeechEncoder(FFTBlocks):
             'encoder_out': [T x B x C]
         }
         """
-        encoder_padding_mask = txt_tokens.eq(self.padding_idx).data
+        # encoder_padding_mask = txt_tokens.eq(self.padding_idx).data
+        encoder_padding_mask = txt_tokens.eq(self.padding_idx)
         x = self.forward_embedding(txt_tokens)  # [B, T, H]
         x = super(FastspeechEncoder, self).forward(x, encoder_padding_mask)
         return x
