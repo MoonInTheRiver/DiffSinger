@@ -45,11 +45,7 @@ def set_hparams(config='', exp_name='', hparams_str='', print_hparams=True, glob
     loaded_config = set()
 
     def load_config(config_fn):  # deep first
-        if(config_fn.startswith("/")):
-            config_fn_path=os.path.abspath(config_fn[1:])
-        else:
-            config_fn_path=config_fn
-        with open(config_fn_path, encoding='utf-8') as f:
+        with open(config_fn, encoding='utf-8') as f:
             hparams_ = yaml.safe_load(f)
         loaded_config.add(config_fn)
         if 'base_config' in hparams_:
