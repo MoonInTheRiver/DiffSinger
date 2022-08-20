@@ -34,7 +34,7 @@ class FastspeechMIDIEncoder(FastspeechEncoder):
             'encoder_out': [T x B x C]
         }
         """
-        encoder_padding_mask = txt_tokens.eq(self.padding_idx).data
+        encoder_padding_mask = txt_tokens.eq(self.padding_idx).detach()
         x = self.forward_embedding(txt_tokens, midi_embedding, midi_dur_embedding, slur_embedding)  # [B, T, H]
         x = super(FastspeechEncoder, self).forward(x, encoder_padding_mask)
         return x

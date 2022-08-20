@@ -1,5 +1,6 @@
 # coding=utf8
 
+import json
 import os
 from pyexpat import model
 import sys
@@ -108,6 +109,10 @@ class TestAllInfer(e2e.DiffSingerE2EInfer):
 
         device = txt_tokens.device
 
+        print(f'mel2ph: {mel2ph}')
+
+        mel2ph = None
+
         with torch.no_grad():
             decoder_inp = self.model2.run(
                 None,
@@ -122,8 +127,6 @@ class TestAllInfer(e2e.DiffSingerE2EInfer):
             )
 
             cond = torch.from_numpy(decoder_inp[0]).transpose(1, 2)
-
-            print(f'cond2: {cond}')
 
             t = hparams['K_step']
             print('===> gaussion start.')
@@ -151,6 +154,8 @@ class TestAllInfer(e2e.DiffSingerE2EInfer):
                 mel_out = denorm_spec(x)
 
             # mel_out = output['mel_out']  # [B, T,80]
+            
+            print("Run PE")
 
             if hparams.get('pe_enable') is not None and hparams['pe_enable']:
                 pe2_res = self.pe2.run(None,
@@ -166,6 +171,10 @@ class TestAllInfer(e2e.DiffSingerE2EInfer):
                 # f0_pred = output['f0_denorm']
                 f0_pred = None
 
+            print("Run Hifigan")
+
+            print(to_numpy(f0_pred))
+
             # Run Vocoder
             wav_out = self.run_vocoder(mel_out, f0=f0_pred)
         wav_out = wav_out.cpu().numpy()
@@ -173,12 +182,15 @@ class TestAllInfer(e2e.DiffSingerE2EInfer):
 
 
 if __name__ == '__main__':
-    c = {
-        'text': '小酒窝长睫毛AP是你最美的记号',
-        'notes': 'C#4/Db4 | F#4/Gb4 | G#4/Ab4 | A#4/Bb4 F#4/Gb4 | F#4/Gb4 C#4/Db4 | C#4/Db4 | rest | C#4/Db4 | A#4/Bb4 | G#4/Ab4 | A#4/Bb4 | G#4/Ab4 | F4 | C#4/Db4',
-        'notes_duration': '0.407140 | 0.376190 | 0.242180 | 0.509550 0.183420 | 0.315400 0.235020 | 0.361660 | 0.223070 | 0.377270 | 0.340550 | 0.299620 | 0.344510 | 0.283770 | 0.323390 | 0.360340',
-        'input_type': 'word'
-    }  # user input: Chinese characters
+    # c = {
+    #     'text': '小酒窝长睫毛AP是你最美的记号',
+    #     'notes': 'C#4/Db4 | F#4/Gb4 | G#4/Ab4 | A#4/Bb4 F#4/Gb4 | F#4/Gb4 C#4/Db4 | C#4/Db4 | rest | C#4/Db4 | A#4/Bb4 | G#4/Ab4 | A#4/Bb4 | G#4/Ab4 | F4 | C#4/Db4',
+    #     'notes_duration': '0.407140 | 0.376190 | 0.242180 | 0.509550 0.183420 | 0.315400 0.235020 | 0.361660 | 0.223070 | 0.377270 | 0.340550 | 0.299620 | 0.344510 | 0.283770 | 0.323390 | 0.360340',
+    #     'input_type': 'word'
+    # }  # user input: Chinese characters
+
+    with open("小手拉大手.ds", 'r', encoding='utf-8') as f:
+        c = json.load(f)
 
     target = "./infer_out/onnx_test_singer_res.wav"
 

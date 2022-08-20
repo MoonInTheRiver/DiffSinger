@@ -1,37 +1,24 @@
 # coding=utf8
 
+import argparse
+import json
 import os
 import sys
 
 import librosa
 
 from inference.svs.opencpop.map import cpop_pinyin2ph_func
-from utils.audio import save_wav
-from utils.hparams import set_hparams, hparams
 
-import numpy as np
+from acoustic.tmp_audio import save_wav
+from acoustic.tmp_hparams import set_hparams, hparams
+from acoustic.tmp_text_encoder import TokenTextEncoder
 
 from pypinyin import pinyin, lazy_pinyin, Style
 
-import onnxruntime as ort
-
+import numpy as np
 from tqdm import tqdm
 
-from utils.text_encoder import TokenTextEncoder
-
-root_dir = os.path.dirname(os.path.abspath(__file__))
-os.environ['PYTHONPATH'] = f'"{root_dir}"'
-
-sys.argv = [
-    f'{root_dir}/inference/svs/ds_e2e.py',
-    '--config',
-    f'{root_dir}/usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml',
-    '--exp_name',
-    '0228_opencpop_ds100_rel'
-]
-
-spec_max = None
-spec_min = None
+import onnxruntime as ort
 
 
 def denorm_spec(x):
@@ -55,18 +42,26 @@ class TestAllInfer:
         self.spk_map = {'opencpop': 0}
 
         print("load pe")
-        self.pe2 = ort.InferenceSession("xiaoma_pe.onnx", providers=["CUDAExecutionProvider"])
+        self.pe2 = ort.InferenceSession(f"{onnx_dir}/xiaoma_pe.onnx", providers=[
+                                        "CUDAExecutionProvider"] if use_gpu else [
+                                        "CPUExecutionProvider"])
         print("load hifigan")
-        self.vocoder2 = ort.InferenceSession("hifigan.onnx", providers=["CUDAExecutionProvider"])
+        self.vocoder2 = ort.InferenceSession(f"{onnx_dir}/hifigan.onnx", providers=[
+                                             "CUDAExecutionProvider"]if use_gpu else [
+            "CPUExecutionProvider"])
         print("load singer_fs")
-        self.model2 = ort.InferenceSession("singer_fs.onnx", providers=["CUDAExecutionProvider"])
+        self.model2 = ort.InferenceSession(f"{onnx_dir}/singer_fs.onnx", providers=[
+                                           "CUDAExecutionProvider"]if use_gpu else [
+            "CPUExecutionProvider"])
         ips = self.model2.get_inputs()
         print(len(ips))
         for i in range(0, len(ips)):
             print(f'{i}. {ips[i].name}')
 
         print("load singer_denoise")
-        self.model3 = ort.InferenceSession("singer_denoise.onnx", providers=["CUDAExecutionProvider"])
+        self.model3 = ort.InferenceSession(f"{onnx_dir}/singer_denoise.onnx", providers=[
+                                           "CUDAExecutionProvider"]if use_gpu else [
+            "CPUExecutionProvider"])
         ips = self.model3.get_inputs()
         print(len(ips))
         for i in range(0, len(ips)):
@@ -104,11 +99,14 @@ class TestAllInfer:
 
         # lyric
         pinyins = lazy_pinyin(text_raw, strict=False)
-        ph_per_word_lst = [self.pinyin2phs[pinyin.strip()] for pinyin in pinyins if pinyin.strip() in self.pinyin2phs]
+        ph_per_word_lst = [self.pinyin2phs[pinyin.strip()]
+                           for pinyin in pinyins if pinyin.strip() in self.pinyin2phs]
 
         # Note
-        note_per_word_lst = [x.strip() for x in inp['notes'].split('|') if x.strip() != '']
-        mididur_per_word_lst = [x.strip() for x in inp['notes_duration'].split('|') if x.strip() != '']
+        note_per_word_lst = [x.strip()
+                             for x in inp['notes'].split('|') if x.strip() != '']
+        mididur_per_word_lst = [
+            x.strip() for x in inp['notes_duration'].split('|') if x.strip() != '']
 
         if len(note_per_word_lst) == len(ph_per_word_lst) == len(mididur_per_word_lst):
             print('Pass word-notes check.')
@@ -116,7 +114,8 @@ class TestAllInfer:
             print('The number of words does\'t match the number of notes\' windows. ',
                   'You should split the note(s) for each word by | mark.')
             print(ph_per_word_lst, note_per_word_lst, mididur_per_word_lst)
-            print(len(ph_per_word_lst), len(note_per_word_lst), len(mididur_per_word_lst))
+            print(len(ph_per_word_lst), len(
+                note_per_word_lst), len(mididur_per_word_lst))
             return None
 
         note_lst = []
@@ -148,7 +147,8 @@ class TestAllInfer:
             #  j        ie         ie
             #  F#4/Gb4  F#4/Gb4    C#4/Db4
             #  0        0          1
-            if len(note_in_this_word) > 1:  # is_slur = True, we should repeat the YUNMU to match the 2nd, 3rd... notes.
+            # is_slur = True, we should repeat the YUNMU to match the 2nd, 3rd... notes.
+            if len(note_in_this_word) > 1:
                 for idx in range(1, len(note_in_this_word)):
                     ph_lst.append(ph_in_this_word[-1])
                     note_lst.append(note_in_this_word[idx])
@@ -173,7 +173,8 @@ class TestAllInfer:
         ph_dur = None
         if inp['ph_dur'] is not None:
             ph_dur = np.array(inp['ph_dur'].split(), 'float')
-            print(len(note_lst), len(ph_seq.split()), len(midi_dur_lst), len(ph_dur))
+            print(len(note_lst), len(ph_seq.split()),
+                  len(midi_dur_lst), len(ph_dur))
             if len(note_lst) == len(ph_seq.split()) == len(midi_dur_lst) == len(ph_dur):
                 print('Pass word-notes check.')
             else:
@@ -207,7 +208,8 @@ class TestAllInfer:
         # get ph seq, note lst, midi dur lst, is slur lst.
         if input_type == 'word':
             ret = self.preprocess_word_level_input(inp)
-        elif input_type == 'phoneme':  # like transcriptions.txt in Opencpop dataset.
+        # like transcriptions.txt in Opencpop dataset.
+        elif input_type == 'phoneme':
             ret = self.preprocess_phoneme_level_input(inp)
         else:
             print('Invalid input type.')
@@ -252,11 +254,14 @@ class TestAllInfer:
         spk_ids = np.zeros(item['spk_id'], np.int64)[None, :]
         # spk_ids = torch.LongTensor(item['spk_id'])[None, :].to(self.device)
 
-        pitch_midi = np.array(item['pitch_midi'], np.int64)[None, :hparams['max_frames']]
+        pitch_midi = np.array(item['pitch_midi'], np.int64)[
+            None, :hparams['max_frames']]
         # pitch_midi = torch.LongTensor(item['pitch_midi'])[None, :hparams['max_frames']].to(self.device)
-        midi_dur = np.array(item['midi_dur'], np.float32)[None, :hparams['max_frames']]
+        midi_dur = np.array(item['midi_dur'], np.float32)[
+            None, :hparams['max_frames']]
         # midi_dur = torch.FloatTensor(item['midi_dur'])[None, :hparams['max_frames']].to(self.device)
-        is_slur = np.array(item['is_slur'], np.int64)[None, :hparams['max_frames']]
+        is_slur = np.array(item['is_slur'], np.int64)[
+            None, :hparams['max_frames']]
         # is_slur = torch.LongTensor(item['is_slur'])[None, :hparams['max_frames']].to(self.device)
         mel2ph = None
 
@@ -352,25 +357,60 @@ class TestAllInfer:
         return output
 
     def infer_once(self, inp):
-        inp = self.preprocess_input(inp, input_type=inp['input_type'] if inp.get('input_type') else 'word')
+        inp = self.preprocess_input(
+            inp, input_type=inp['input_type'] if inp.get('input_type') else 'word')
         output = self.forward_model(inp)
         output = self.postprocess_output(output)
         return output
 
-if __name__ == '__main__':
-    c = {
-        'text': '小酒窝长睫毛AP是你最美的记号',
-        'notes': 'C#4/Db4 | F#4/Gb4 | G#4/Ab4 | A#4/Bb4 F#4/Gb4 | F#4/Gb4 C#4/Db4 | C#4/Db4 | rest | C#4/Db4 | A#4/Bb4 | G#4/Ab4 | A#4/Bb4 | G#4/Ab4 | F4 | C#4/Db4',
-        'notes_duration': '0.407140 | 0.376190 | 0.242180 | 0.509550 0.183420 | 0.315400 0.235020 | 0.361660 | 0.223070 | 0.377270 | 0.340550 | 0.299620 | 0.344510 | 0.283770 | 0.323390 | 0.360340',
-        'input_type': 'word'
-    }  # user input: Chinese characters
 
-    target = "./infer_out/onnx_test_singer_res.wav"
+root_dir = os.path.dirname(os.path.abspath(__file__))
+os.environ['PYTHONPATH'] = f'"{root_dir}"'
+
+onnx_dir = f'{root_dir}/acoustic/models'
+
+parser = argparse.ArgumentParser(description='Run DiffSinger inference')
+parser.add_argument('proj', type=str, help='Path to the input file')
+
+parser.add_argument('-o', '--out', type=str, default='./infer_out',
+                    required=False, help='Path of the output folder')
+
+parser.add_argument('-t', '--title', type=str, required=False,
+                    help='Title of output file')
+
+parser.add_argument('-d', '--device', type=str,
+                    help='Use gpu to synthesize', default='cpu')
+
+args = parser.parse_args()
+
+use_gpu = args.device == 'gpu'
+
+
+sys.argv = [
+    f'{root_dir}/inference/svs/ds_e2e.py',
+    '--config',
+    f'{root_dir}/usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml',
+    '--exp_name',
+    '0228_opencpop_ds100_rel'
+]
+
+spec_max = None
+spec_min = None
+
+
+if __name__ == '__main__':
+    with open(args.proj, 'r', encoding='utf-8') as f:
+        c = json.load(f)
+
+    name = os.path.basename(args.proj).split('.')[0] if not args.title else args.title
+    target = os.path.join(args.out, f'{name}.wav')
 
     set_hparams(print_hparams=False)
 
-    spec_min = np.array(hparams['spec_min'], np.float32)[None, None, :hparams['keep_bins']]
-    spec_max = np.array(hparams['spec_max'], np.float32)[None, None, :hparams['keep_bins']]
+    spec_min = np.array(hparams['spec_min'], np.float32)[
+        None, None, :hparams['keep_bins']]
+    spec_max = np.array(hparams['spec_max'], np.float32)[
+        None, None, :hparams['keep_bins']]
 
     infer_ins = TestAllInfer(hparams)
 

@@ -27,9 +27,16 @@ if __name__ == '__main__':
 
     infer_ins = e2e.DiffSingerE2EInfer(hparams)
     infer_ins.vocoder.to(dev)
+
     with torch.no_grad():
-        x = torch.rand(1, 80, 968).to(dev)
-        f0 = torch.rand(1, 968).to(dev)
+        x = torch.rand(1, 80, 10000).to(dev)
+        f0 = torch.rand(1, 10000).to(dev)
+
+        x = torch.load("c.pt").to(dev)
+        f0 = torch.load("f0.pt").to(dev)
+
+        print(x.shape)
+        print(f0.shape)
 
         torch.onnx.export(
             infer_ins.vocoder,
@@ -54,4 +61,5 @@ if __name__ == '__main__':
             opset_version=11,
         )
 
+    print(infer_ins.vocoder)
     print("OK")
