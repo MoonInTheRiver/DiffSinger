@@ -27,7 +27,7 @@ if __name__ == '__main__':
     infer_ins = e2e.DiffSingerE2EInfer(hparams)
     infer_ins.pe.to(dev)
     with torch.no_grad():
-        mel_input = torch.rand(1, 968, 80).to(dev)
+        mel_input = torch.rand(1, 4097, 80).to(dev)
 
         torch.onnx.export(
             infer_ins.pe,
