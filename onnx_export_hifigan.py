@@ -29,8 +29,8 @@ if __name__ == '__main__':
     infer_ins.vocoder.to(dev)
 
     with torch.no_grad():
-        x = torch.rand(1, 80, 10000).to(dev)
-        f0 = torch.rand(1, 10000).to(dev)
+        x = torch.rand(1, 80, 2).to(dev)
+        f0 = torch.rand(1, 2).to(dev)
 
         x = torch.load("c.pt").to(dev)
         f0 = torch.load("f0.pt").to(dev)

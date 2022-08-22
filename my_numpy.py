@@ -1,5 +1,9 @@
 # coding=utf8
 
+import onnxruntime as ort
+from tqdm import tqdm
+import numpy as np
+from pypinyin import pinyin, lazy_pinyin, Style
 import argparse
 import json
 import os
@@ -13,16 +17,15 @@ from acoustic.tmp_audio import save_wav
 from acoustic.tmp_hparams import set_hparams, hparams
 from acoustic.tmp_text_encoder import TokenTextEncoder
 
-from pypinyin import pinyin, lazy_pinyin, Style
-
-import numpy as np
-from tqdm import tqdm
-
-import onnxruntime as ort
+# import acoustic.tmp_cuda
+# import torch
 
 
 def denorm_spec(x):
     return (x + 1) / 2 * (spec_max - spec_min) + spec_min
+
+
+provider = None
 
 
 class TestAllInfer:
@@ -42,26 +45,22 @@ class TestAllInfer:
         self.spk_map = {'opencpop': 0}
 
         print("load pe")
-        self.pe2 = ort.InferenceSession(f"{onnx_dir}/xiaoma_pe.onnx", providers=[
-                                        "CUDAExecutionProvider"] if use_gpu else [
-                                        "CPUExecutionProvider"])
+        self.pe2 = ort.InferenceSession(
+            f"{onnx_dir}/xiaoma_pe.onnx", providers=[provider])
         print("load hifigan")
-        self.vocoder2 = ort.InferenceSession(f"{onnx_dir}/hifigan.onnx", providers=[
-                                             "CUDAExecutionProvider"]if use_gpu else [
-            "CPUExecutionProvider"])
+        self.vocoder2 = ort.InferenceSession(
+            f"{onnx_dir}/hifigan.onnx", providers=[provider])
         print("load singer_fs")
-        self.model2 = ort.InferenceSession(f"{onnx_dir}/singer_fs.onnx", providers=[
-                                           "CUDAExecutionProvider"]if use_gpu else [
-            "CPUExecutionProvider"])
+        self.model2 = ort.InferenceSession(
+            f"{onnx_dir}/singer_fs.onnx", providers=[provider])
         ips = self.model2.get_inputs()
         print(len(ips))
         for i in range(0, len(ips)):
             print(f'{i}. {ips[i].name}')
 
         print("load singer_denoise")
-        self.model3 = ort.InferenceSession(f"{onnx_dir}/singer_denoise.onnx", providers=[
-                                           "CUDAExecutionProvider"]if use_gpu else [
-            "CPUExecutionProvider"])
+        self.model3 = ort.InferenceSession(
+            f"{onnx_dir}/singer_denoise.onnx", providers=[provider])
         ips = self.model3.get_inputs()
         print(len(ips))
         for i in range(0, len(ips)):
@@ -287,10 +286,17 @@ class TestAllInfer:
         return batch
 
     def forward_model(self, inp):
+
+        print("[Status] Preprocess")
+
         sample = self.input_to_batch(inp)
         txt_tokens = sample['txt_tokens']  # [B, T_t]
         spk_id = sample.get('spk_ids')
         mel2ph = sample['mel2ph']
+
+        mel2ph = None
+
+        print("[Status] Run fs")
 
         decoder_inp = self.model2.run(
             None,
@@ -307,14 +313,16 @@ class TestAllInfer:
         # cond = torch.from_numpy(decoder_inp[0]).transpose(1, 2)
 
         t = hparams['K_step']
-        print('===> gaussion start.')
+        # print('===> gaussion start.')
         shape = (cond.shape[0], 1,
                  hparams['audio_num_mel_bins'], cond.shape[2])
         # x = torch.randn(shape)
         # x = torch.zeros(shape, device=device)
         x = np.random.randn(*shape).astype(np.float32)
 
-        for i in tqdm(reversed(range(0, t)), desc='sample time step', total=t):
+        print("[Status] Run sample")
+
+        for i in tqdm(reversed(range(0, t)), desc='[Status] Sample step', total=t):
             res2 = self.model3.run(
                 None,
                 {
@@ -335,6 +343,8 @@ class TestAllInfer:
 
         # mel_out = output['mel_out']  # [B, T,80]
 
+        print("[Status] Run pe")
+
         if hparams.get('pe_enable') is not None and hparams['pe_enable']:
             pe2_res = self.pe2.run(None,
                                    {
@@ -347,6 +357,8 @@ class TestAllInfer:
         else:
             # f0_pred = output['f0_denorm']
             f0_pred = None
+
+        print("[Status] Run vocoder")
 
         # Run Vocoder
         wav_out = self.run_vocoder(mel_out, f0=f0_pred)
@@ -385,6 +397,14 @@ args = parser.parse_args()
 
 use_gpu = args.device == 'gpu'
 
+provider = ('CUDAExecutionProvider', {
+    'device_id': 0,
+    'arena_extend_strategy': 'kNextPowerOfTwo',
+    'gpu_mem_limit': 2 * 1024 * 1024 * 1024,
+    'cudnn_conv_algo_search': 'EXHAUSTIVE',
+    'do_copy_in_default_stream': True,
+}) if use_gpu else "CPUExecutionProvider"
+
 
 sys.argv = [
     f'{root_dir}/inference/svs/ds_e2e.py',
@@ -402,7 +422,8 @@ if __name__ == '__main__':
     with open(args.proj, 'r', encoding='utf-8') as f:
         c = json.load(f)
 
-    name = os.path.basename(args.proj).split('.')[0] if not args.title else args.title
+    name = os.path.basename(args.proj).split(
+        '.')[0] if not args.title else args.title
     target = os.path.join(args.out, f'{name}.wav')
 
     set_hparams(print_hparams=False)
@@ -416,7 +437,7 @@ if __name__ == '__main__':
 
     out = infer_ins.infer_once(c)
     os.makedirs(os.path.dirname(target), exist_ok=True)
-    print(f'| save audio: {target}')
+    print(f'[Status] Save audio: {target}')
     save_wav(out, target, hparams['audio_sample_rate'])
 
     print("OK")
