@@ -54,16 +54,16 @@ def infer_once(path: str):
     current_length = 0
     for param in params:
         if 'seed' in param:
-            print(f'| set seed: {param["seed"]}')
-            torch.manual_seed(param["seed"])
-            torch.cuda.manual_seed_all(param["seed"])
+            print(f'| set seed: {param["seed"] & 0xffff_ffff_ffff_ffff}')
+            torch.manual_seed(param["seed"] & 0xffff_ffff_ffff_ffff)
+            torch.cuda.manual_seed_all(param["seed"] & 0xffff_ffff_ffff_ffff)
         elif args.seed:
-            print(f'| set seed: {args.seed}')
-            torch.manual_seed(args.seed)
-            torch.cuda.manual_seed_all(args.seed)
+            print(f'| set seed: {args.seed & 0xffff_ffff_ffff_ffff}')
+            torch.manual_seed(args.seed & 0xffff_ffff_ffff_ffff)
+            torch.cuda.manual_seed_all(args.seed & 0xffff_ffff_ffff_ffff)
         else:
-            torch.manual_seed(torch.seed())
-            torch.cuda.manual_seed_all(torch.seed())
+            torch.manual_seed(torch.seed() & 0xffff_ffff_ffff_ffff)
+            torch.cuda.manual_seed_all(torch.seed() & 0xffff_ffff_ffff_ffff)
         silent_length = round(param.get('offset', 0) * sample_rate) - current_length
         result = np.append(result, np.zeros(silent_length))
         current_length += silent_length
@@ -71,6 +71,7 @@ def infer_once(path: str):
         result = np.append(result, seg_audio)
         current_length += seg_audio.shape[0]
     print(f'| save audio: {path}')
+    os.makedirs(args.out, exist_ok=True)
     save_wav(result, path, sample_rate)
 
 
