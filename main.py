@@ -54,16 +54,16 @@ def infer_once(path: str):
     current_length = 0
     for param in params:
         if 'seed' in param:
-            print(f'| set seed: {param["seed"] & 0xffff_ffff_ffff_ffff}')
-            torch.manual_seed(param["seed"] & 0xffff_ffff_ffff_ffff)
-            torch.cuda.manual_seed_all(param["seed"] & 0xffff_ffff_ffff_ffff)
+            print(f'| set seed: {param["seed"] & 0xffff_ffff}')
+            torch.manual_seed(param["seed"] & 0xffff_ffff)
+            torch.cuda.manual_seed_all(param["seed"] & 0xffff_ffff)
         elif args.seed:
-            print(f'| set seed: {args.seed & 0xffff_ffff_ffff_ffff}')
-            torch.manual_seed(args.seed & 0xffff_ffff_ffff_ffff)
-            torch.cuda.manual_seed_all(args.seed & 0xffff_ffff_ffff_ffff)
+            print(f'| set seed: {args.seed & 0xffff_ffff}')
+            torch.manual_seed(args.seed & 0xffff_ffff)
+            torch.cuda.manual_seed_all(args.seed & 0xffff_ffff)
         else:
-            torch.manual_seed(torch.seed() & 0xffff_ffff_ffff_ffff)
-            torch.cuda.manual_seed_all(torch.seed() & 0xffff_ffff_ffff_ffff)
+            torch.manual_seed(torch.seed() & 0xffff_ffff)
+            torch.cuda.manual_seed_all(torch.seed() & 0xffff_ffff)
         silent_length = round(param.get('offset', 0) * sample_rate) - current_length
         result = np.append(result, np.zeros(silent_length))
         current_length += silent_length
