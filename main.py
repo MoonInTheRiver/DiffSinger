@@ -35,6 +35,9 @@ sys.argv = [
     '0814_opencpop_ds_rhythm_fix'
 ]
 
+if not os.path.exists(os.path.join(root_dir, 'checkpoints/0814_opencpop_ds_rhythm_fix')):
+    sys.argv[4] = '0814_opencpop_500k（修复无参音素）'
+
 if not isinstance(params, list):
     params = [params]
 
