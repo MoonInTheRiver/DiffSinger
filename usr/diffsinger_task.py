@@ -368,13 +368,15 @@ class DiffSingerMIDITask(DiffSingerTask):
         if hparams['dur_loss'] == 'mse':
             losses['pdur'] = F.mse_loss(dur_pred, (dur_gt + 1).log(), reduction='none')
             losses['pdur'] = (losses['pdur'] * nonpadding).sum() / nonpadding.sum()
+            losses['pdur'] = losses['pdur'] * hparams['lambda_ph_dur']
             dur_pred = (dur_pred.exp() - 1).clamp(min=0)
         else:
             raise NotImplementedError
 
         # use linear scale for sent and word duration
         if hparams['lambda_word_dur'] > 0:
-            idx = F.pad(wdb.cumsum(axis=1), (1, 0))[:, :-1]
+            #idx = F.pad(wdb.cumsum(axis=1), (1, 0))[:, :-1]
+            idx = wdb.cumsum(axis=1)
             # word_dur_g = dur_gt.new_zeros([B, idx.max() + 1]).scatter_(1, idx, midi_dur)  # midi_dur can be implied by add gt-ph_dur
             word_dur_p = dur_pred.new_zeros([B, idx.max() + 1]).scatter_add(1, idx, dur_pred)
             word_dur_g = dur_gt.new_zeros([B, idx.max() + 1]).scatter_add(1, idx, dur_gt)
