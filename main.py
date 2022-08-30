@@ -27,7 +27,7 @@ name = os.path.basename(args.proj).split('.')[0] if not args.title else args.tit
 exp = args.exp
 if not exp:
     if os.path.exists(os.path.join(root_dir, 'checkpoints/0814_opencpop_ds_rhythm_fix')):
-        exp = 'checkpoints/0814_opencpop_ds_rhythm_fix'
+        exp = '0814_opencpop_ds_rhythm_fix'
     else:
         exp = '0814_opencpop_500k（修复无参音素）'
 
