@@ -1,5 +1,6 @@
 import math
 import random
+from collections import deque
 from functools import partial
 from inspect import isfunction
 from pathlib import Path
@@ -13,7 +14,6 @@ from einops import rearrange
 from modules.fastspeech.fs2 import FastSpeech2
 from modules.diffsinger_midi.fs2 import FastSpeech2MIDI
 from utils.hparams import hparams
-
 
 
 def exists(x):
@@ -69,7 +69,8 @@ beta_schedule = {
 
 class GaussianDiffusion(nn.Module):
     def __init__(self, phone_encoder, out_dims, denoise_fn,
-                 timesteps=1000, K_step=1000, loss_type=hparams.get('diff_loss_type', 'l1'), betas=None, spec_min=None, spec_max=None):
+                 timesteps=1000, K_step=1000, loss_type=hparams.get('diff_loss_type', 'l1'), betas=None, spec_min=None,
+                 spec_max=None):
         super().__init__()
         self.denoise_fn = denoise_fn
         if hparams.get('use_midi') is not None and hparams['use_midi']:
@@ -94,6 +95,8 @@ class GaussianDiffusion(nn.Module):
         self.num_timesteps = int(timesteps)
         self.K_step = K_step
         self.loss_type = loss_type
+
+        self.noise_list = deque(maxlen=4)
 
         to_torch = partial(torch.tensor, dtype=torch.float32)
 
@@ -162,6 +165,41 @@ class GaussianDiffusion(nn.Module):
         nonzero_mask = (1 - (t == 0).float()).reshape(b, *((1,) * (len(x.shape) - 1)))
         return model_mean + nonzero_mask * (0.5 * model_log_variance).exp() * noise
 
+    @torch.no_grad()
+    def p_sample_plms(self, x, t, cond, clip_denoised=True, repeat_noise=False):
+        """
+        Use the PLMS method from [Pseudo Numerical Methods for Diffusion Models on Manifolds](https://arxiv.org/abs/2202.09778).
+        """
+
+        def get_x_pred(x, e_t, t):
+            a_t = extract(self.alphas_cumprod, t, x.shape)
+            a_prev = extract(self.alphas_cumprod_prev, t, x.shape)
+            a_t_sq, a_prev_sq = a_t.sqrt(), a_prev.sqrt()
+
+            x_delta = (a_prev - a_t) * ((1 / (a_t_sq * (a_t_sq + a_prev_sq))) * x - 1 / (a_t_sq * (((1 - a_prev) * a_t).sqrt() + ((1 - a_t) * a_prev).sqrt())) * e_t)
+            x_pred = x + x_delta
+
+            return x_pred
+
+        noise_list = self.noise_list
+        noise_pred = self.denoise_fn(x, t, cond=cond)
+
+        if len(noise_list) == 0:
+            x_pred = get_x_pred(x, noise_pred, t)
+            noise_pred_prev = self.denoise_fn(x_pred, t + 1, cond=cond)
+            noise_pred_prime = (noise_pred + noise_pred_prev) / 2
+        elif len(noise_list) == 1:
+            noise_pred_prime = (3 * noise_pred - noise_list[-1]) / 2
+        elif len(noise_list) == 2:
+            noise_pred_prime = (23 * noise_pred - 16 * noise_list[-1] + 5 * noise_list[-2]) / 12
+        elif len(noise_list) >= 3:
+            noise_pred_prime = (55 * noise_pred - 59 * noise_list[-1] + 37 * noise_list[-2] - 9 * noise_list[-3]) / 24
+
+        x_prev = get_x_pred(x, noise_pred_prime, t)
+        noise_list.append(noise_pred)
+
+        return x_prev
+
     def q_sample(self, x_start, t, noise=None):
         noise = default(noise, lambda: torch.randn_like(x_start))
         return (
@@ -216,8 +254,9 @@ class GaussianDiffusion(nn.Module):
                 print('===> gaussion start.')
                 shape = (cond.shape[0], 1, self.mel_bins, cond.shape[2])
                 x = torch.randn(shape, device=device)
+            self.noise_list = deque(maxlen=4)
             for i in tqdm(reversed(range(0, t)), desc='sample time step', total=t):
-                x = self.p_sample(x, torch.full((b,), i, device=device, dtype=torch.long), cond)
+                x = self.p_sample_plms(x, torch.full((b,), i, device=device, dtype=torch.long), cond)
             x = x[:, 0].transpose(1, 2)
             if mel2ph is not None:  # for singing
                 ret['mel_out'] = self.denorm_spec(x) * ((mel2ph > 0).float()[:, :, None])
@@ -233,7 +272,7 @@ class GaussianDiffusion(nn.Module):
 
     def cwt2f0_norm(self, cwt_spec, mean, std, mel2ph):
         return self.fs2.cwt2f0_norm(cwt_spec, mean, std, mel2ph)
-        
+
     def out2mel(self, x):
         return x
 
