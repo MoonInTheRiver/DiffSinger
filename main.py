@@ -17,7 +17,7 @@ os.environ['PYTHONPATH'] = f'"{root_dir}"'
 parser = argparse.ArgumentParser(description='Run DiffSinger inference')
 parser.add_argument('proj', type=str, help='Path to the input file')
 parser.add_argument('--exp', type=str, required=False, help='Selection of model')
-parser.add_argument('--out', type=str, default='./infer_out', required=False, help='Path of the output folder')
+parser.add_argument('--out', type=str, required=False, help='Path of the output folder')
 parser.add_argument('--title', type=str, required=False, help='Title of output file')
 parser.add_argument('--num', type=int, default=1, help='Number of runs')
 parser.add_argument('--seed', type=int, help='Random seed of the inference')
@@ -30,6 +30,9 @@ if not exp:
         exp = '0814_opencpop_ds_rhythm_fix'
     else:
         exp = '0814_opencpop_500k（修复无参音素）'
+out = args.out
+if not out:
+    out = os.path.basename(args.proj)
 
 with open(args.proj, 'r', encoding='utf-8') as f:
     params = json.load(f)
@@ -75,12 +78,12 @@ def infer_once(path: str):
         result = np.append(result, seg_audio)
         current_length += seg_audio.shape[0]
     print(f'| save audio: {path}')
-    os.makedirs(args.out, exist_ok=True)
     save_wav(result, path, sample_rate)
 
 
+os.makedirs(out, exist_ok=True)
 if args.num == 1:
-    infer_once(os.path.join(args.out, f'{name}.wav'))
+    infer_once(os.path.join(out, f'{name}.wav'))
 else:
     for i in range(1, args.num + 1):
-        infer_once(os.path.join(args.out, f'{name}-{str(i).zfill(3)}.wav'))
+        infer_once(os.path.join(out, f'{name}-{str(i).zfill(3)}.wav'))
