@@ -166,17 +166,20 @@ class GaussianDiffusion(nn.Module):
         return model_mean + nonzero_mask * (0.5 * model_log_variance).exp() * noise
 
     @torch.no_grad()
-    def p_sample_plms(self, x, t, cond, clip_denoised=True, repeat_noise=False):
+    def p_sample_plms(self, x, t, interval, cond, clip_denoised=True, repeat_noise=False):
         """
         Use the PLMS method from [Pseudo Numerical Methods for Diffusion Models on Manifolds](https://arxiv.org/abs/2202.09778).
         """
 
-        def get_x_pred(x, e_t, t):
+        def get_x_pred(x, noise_t, t):
             a_t = extract(self.alphas_cumprod, t, x.shape)
-            a_prev = extract(self.alphas_cumprod_prev, t, x.shape)
+            if t[0] < interval:
+                a_prev = torch.ones_like(a_t)
+            else:
+                a_prev = extract(self.alphas_cumprod, t - interval, x.shape)
             a_t_sq, a_prev_sq = a_t.sqrt(), a_prev.sqrt()
 
-            x_delta = (a_prev - a_t) * ((1 / (a_t_sq * (a_t_sq + a_prev_sq))) * x - 1 / (a_t_sq * (((1 - a_prev) * a_t).sqrt() + ((1 - a_t) * a_prev).sqrt())) * e_t)
+            x_delta = (a_prev - a_t) * ((1 / (a_t_sq * (a_t_sq + a_prev_sq))) * x - 1 / (a_t_sq * (((1 - a_prev) * a_t).sqrt() + ((1 - a_t) * a_prev).sqrt())) * noise_t)
             x_pred = x + x_delta
 
             return x_pred
@@ -186,7 +189,7 @@ class GaussianDiffusion(nn.Module):
 
         if len(noise_list) == 0:
             x_pred = get_x_pred(x, noise_pred, t)
-            noise_pred_prev = self.denoise_fn(x_pred, t + 1, cond=cond)
+            noise_pred_prev = self.denoise_fn(x_pred, torch.max(t-interval, torch.zeros_like(t)), cond=cond)
             noise_pred_prime = (noise_pred + noise_pred_prev) / 2
         elif len(noise_list) == 1:
             noise_pred_prime = (3 * noise_pred - noise_list[-1]) / 2
@@ -255,8 +258,9 @@ class GaussianDiffusion(nn.Module):
                 shape = (cond.shape[0], 1, self.mel_bins, cond.shape[2])
                 x = torch.randn(shape, device=device)
             self.noise_list = deque(maxlen=4)
-            for i in tqdm(reversed(range(0, t)), desc='sample time step', total=t):
-                x = self.p_sample_plms(x, torch.full((b,), i, device=device, dtype=torch.long), cond)
+            iteration_interval = 5
+            for i in tqdm(reversed(range(0, t, iteration_interval)), desc='sample time step', total=t):
+                x = self.p_sample_plms(x, torch.full((b,), i, device=device, dtype=torch.long), iteration_interval, cond)
             x = x[:, 0].transpose(1, 2)
             if mel2ph is not None:  # for singing
                 ret['mel_out'] = self.denorm_spec(x) * ((mel2ph > 0).float()[:, :, None])
