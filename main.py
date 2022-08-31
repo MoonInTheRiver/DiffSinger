@@ -32,7 +32,7 @@ if not exp:
         exp = '0814_opencpop_500k（修复无参音素）'
 out = args.out
 if not out:
-    out = os.path.dirname(args.proj)
+    out = os.path.dirname(os.path.abspath(args.proj))
 
 with open(args.proj, 'r', encoding='utf-8') as f:
     params = json.load(f)
