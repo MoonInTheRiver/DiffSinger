@@ -7,6 +7,7 @@ import sys
 import numpy as np
 import torch
 
+from crossfade import cross_fade
 from inference.svs.ds_e2e import DiffSingerE2EInfer
 from utils.audio import save_wav
 from utils.hparams import set_hparams, hparams
@@ -71,12 +72,14 @@ def infer_once(path: str):
         else:
             torch.manual_seed(torch.seed() & 0xffff_ffff)
             torch.cuda.manual_seed_all(torch.seed() & 0xffff_ffff)
-        silent_length = round(param.get('offset', 0) * sample_rate) - current_length
-        result = np.append(result, np.zeros(silent_length))
-        current_length += silent_length
         seg_audio = infer_ins.infer_once(param)
-        result = np.append(result, seg_audio)
-        current_length += seg_audio.shape[0]
+        silent_length = round(param.get('offset', 0) * sample_rate) - current_length
+        if silent_length >= 0:
+            result = np.append(result, np.zeros(silent_length))
+            result = np.append(result, seg_audio)
+        else:
+            result = cross_fade(result, seg_audio, current_length + silent_length)
+        current_length = current_length + silent_length + seg_audio.shape[0]
     print(f'| save audio: {path}')
     save_wav(result, path, sample_rate)
 
