@@ -21,6 +21,13 @@ def override_config(old_config: dict, new_config: dict):
 
 
 def set_hparams(config='', exp_name='', hparams_str='', print_hparams=True, global_hparams=True):
+    '''
+        Load hparams from multiple sources:
+        1. config chain (i.e. first load base_config, then load config);
+        2. if reset == True, load from the (auto-saved) complete config file ('config.yaml')
+           which contains all settings and do not rely on base_config;
+        3. load from argument --hparams or hparams_str, as temporary modification.
+    '''
     if config == '':
         parser = argparse.ArgumentParser(description='neural music')
         parser.add_argument('--config', type=str, default='',
