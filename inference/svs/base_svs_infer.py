@@ -194,7 +194,12 @@ class BaseSVSInfer:
             return None
 
         if ret:
-            ph_seq, note_lst, midi_dur_lst, is_slur = ret
+            ph_seq, note_lst, midi_dur_lst, is_slur, *maybe_ph_dur = ret
+            if maybe_ph_dur:
+                assert len(maybe_ph_dur) == 1
+                ph_dur = maybe_ph_dur[0]
+            else:
+                ph_dur = None
         else:
             print('==========> Preprocess_word_level or phone_level input wrong.')
             return None
@@ -212,7 +217,7 @@ class BaseSVSInfer:
         ph_token = self.ph_encoder.encode(ph_seq)
         item = {'item_name': item_name, 'text': inp['text'], 'ph': ph_seq, 'spk_id': spk_id,
                 'ph_token': ph_token, 'pitch_midi': np.asarray(midis), 'midi_dur': np.asarray(midi_dur_lst),
-                'is_slur': np.asarray(is_slur), }
+                'is_slur': np.asarray(is_slur), 'ph_dur': ph_dur}
         item['ph_len'] = len(item['ph_token'])
         return item
 
@@ -252,12 +257,17 @@ class BaseSVSInfer:
 
     @classmethod
     def example_run(cls, inp, target='infer_out/example_out.wav'):
-        from utils.audio import save_wav
+        # settings hparams
         set_hparams(print_hparams=False)
+        
+        # call the model
         infer_ins = cls(hparams)
         out = infer_ins.infer_once(inp)
+        
+        # output to file
         os.makedirs(os.path.dirname(target), exist_ok=True)
         print(f'| save audio: {target}')
+        from utils.audio import save_wav
         save_wav(out, target, hparams['audio_sample_rate'])
 
 

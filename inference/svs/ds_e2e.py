@@ -35,114 +35,35 @@ class DiffSingerE2EInfer(BaseSVSInfer):
         return model
 
     def preprocess_phoneme_level_input(self, inp):
-        ph_seq = inp['ph_seq']
-        note_lst = inp['note_seq'].split()
-        midi_dur_lst = inp['note_dur_seq'].split()
-        is_slur = np.array(inp['is_slur_seq'].split(),'float')
+        ph_seq, note_lst, midi_dur_lst, is_slur = super().preprocess_phoneme_level_input(inp)
+
+        # add support for user-defined phoneme duration
         ph_dur = None
         if inp['ph_dur'] is not None:
             ph_dur = np.array(inp['ph_dur'].split(),'float')
-            print(len(note_lst), len(ph_seq.split()), len(midi_dur_lst), len(ph_dur))
-            if len(note_lst) == len(ph_seq.split()) == len(midi_dur_lst) == len(ph_dur):
-                print('Pass word-notes check.')
-            else:
-                print('The number of words does\'t match the number of notes\' windows. ',
-                  'You should split the note(s) for each word by | mark.')
-                return None
         else:
-            print('Automatic phone duration mode')
-            print(len(note_lst), len(ph_seq.split()), len(midi_dur_lst))
-            if len(note_lst) == len(ph_seq.split()) == len(midi_dur_lst):
-                print('Pass word-notes check.')
-            else:
-                print('The number of words does\'t match the number of notes\' windows. ',
-                  'You should split the note(s) for each word by | mark.')
-                return None
+            print('Automatic phoneme duration mode')
+        
         return ph_seq, note_lst, midi_dur_lst, is_slur, ph_dur
         
-    def preprocess_input(self, inp, input_type='word'):
-        """
-
-        :param inp: {'text': str, 'item_name': (str, optional), 'spk_name': (str, optional)}
-        :return:
-        """
-
-        item_name = inp.get('item_name', '<ITEM_NAME>')
-        spk_name = inp.get('spk_name', 'opencpop')
-
-        # single spk
-        spk_id = self.spk_map[spk_name]
-
-        # get ph seq, note lst, midi dur lst, is slur lst.
-        if input_type == 'word':
-            ret = self.preprocess_word_level_input(inp)
-        elif input_type == 'phoneme':  # like transcriptions.txt in Opencpop dataset.
-            ret = self.preprocess_phoneme_level_input(inp)
-        else:
-            print('Invalid input type.')
-            return None
-
-        if ret:
-            if input_type == 'word':
-                ph_seq, note_lst, midi_dur_lst, is_slur = ret
-            else:
-                ph_seq, note_lst, midi_dur_lst, is_slur, ph_dur = ret
-        else:
-            print('==========> Preprocess_word_level or phone_level input wrong.')
-            return None
-
-        # convert note lst to midi id; convert note dur lst to midi duration
-        try:
-            midis = [librosa.note_to_midi(x.split("/")[0]) if x != 'rest' else 0
-                     for x in note_lst]
-            midi_dur_lst = [float(x) for x in midi_dur_lst]
-        except Exception as e:
-            print(e)
-            print('Invalid Input Type.')
-            return None
-
-        ph_token = self.ph_encoder.encode(ph_seq)
-        item = {'item_name': item_name, 'text': inp['text'], 'ph': ph_seq, 'spk_id': spk_id,
-                'ph_token': ph_token, 'pitch_midi': np.asarray(midis), 'midi_dur': np.asarray(midi_dur_lst),
-                'is_slur': np.asarray(is_slur), 'ph_dur': None}
-        item['ph_len'] = len(item['ph_token'])
-        if input_type == 'phoneme' :
-            item['ph_dur'] = ph_dur
-        return item
-    
     def input_to_batch(self, item):
-        item_names = [item['item_name']]
-        text = [item['text']]
-        ph = [item['ph']]
-        txt_tokens = torch.LongTensor(item['ph_token'])[None, :].to(self.device)
-        txt_lengths = torch.LongTensor([txt_tokens.shape[1]]).to(self.device)
-        spk_ids = torch.LongTensor(item['spk_id'])[None, :].to(self.device)
-
-        pitch_midi = torch.LongTensor(item['pitch_midi'])[None, :hparams['max_frames']].to(self.device)
-        midi_dur = torch.FloatTensor(item['midi_dur'])[None, :hparams['max_frames']].to(self.device)
-        is_slur = torch.LongTensor(item['is_slur'])[None, :hparams['max_frames']].to(self.device)
+        batch = super().input_to_batch(item)
+        
+        # feed user-defined phoneme duration to a module called LengthRegular
+        # the output *mel2ph* will be used by FastSpeech
+        # note: LengthRegular is not a neural network, only FastSpeech is. (see https://arxiv.org/abs/1905.09263)
         mel2ph = None
         if item['ph_dur'] is not None:
-            ph_acc=np.around(np.add.accumulate(item['ph_dur'])*hparams['audio_sample_rate']/hparams['hop_size']+0.5).astype('int')
-            ph_dur=np.diff(ph_acc,prepend=0)
+            ph_acc = np.around(np.add.accumulate(item['ph_dur']) * hparams['audio_sample_rate'] / hparams['hop_size'] + 0.5).astype('int')
+            ph_dur = np.diff(ph_acc, prepend=0)
             ph_dur = torch.LongTensor(ph_dur)[None, :hparams['max_frames']].to(self.device)
-            lr=LengthRegulator()
-            mel2ph=lr(ph_dur,txt_tokens==0).detach()
-
-        batch = {
-            'item_name': item_names,
-            'text': text,
-            'ph': ph,
-            'txt_tokens': txt_tokens,
-            'txt_lengths': txt_lengths,
-            'spk_ids': spk_ids,
-            'pitch_midi': pitch_midi,
-            'midi_dur': midi_dur,
-            'is_slur': is_slur,
-            'mel2ph': mel2ph
-        }
-        return batch
+            lr = LengthRegulator()
+            mel2ph = lr(ph_dur, dur_padding=(batch['txt_tokens'] == 0)).detach()
         
+        batch['mel2ph'] = mel2ph
+
+        return batch
+
     def forward_model(self, inp):
         sample = self.input_to_batch(inp)
         txt_tokens = sample['txt_tokens']  # [B, T_t]
@@ -150,7 +71,7 @@ class DiffSingerE2EInfer(BaseSVSInfer):
         with torch.no_grad():
             output = self.model(txt_tokens, spk_id=spk_id, ref_mels=None, infer=True,
                                 pitch_midi=sample['pitch_midi'], midi_dur=sample['midi_dur'],
-                                is_slur=sample['is_slur'],mel2ph=sample['mel2ph'])
+                                is_slur=sample['is_slur'], mel2ph=sample['mel2ph'])
             mel_out = output['mel_out']  # [B, T,80]
             if hparams.get('pe_enable') is not None and hparams['pe_enable']:
                 f0_pred = self.pe(mel_out)['f0_denorm_pred']  # pe predict from Pred mel
