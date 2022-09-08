@@ -4,7 +4,7 @@ matplotlib.use('Agg')
 
 from utils import audio
 import matplotlib.pyplot as plt
-from data_gen.tts.data_gen_utils import get_pitch_parselmouth
+from data_gen.data_gen_utils import get_pitch_parselmouth
 from tasks.tts.fs2_utils import FastSpeechDataset
 from utils.cwt import cwt2f0
 from utils.pl_utils import data_loader

@@ -5,7 +5,7 @@ import torch
 import numpy as np
 import os
 
-from tasks.base_task import BaseDataset
+from basics.base_task import BaseDataset
 from tasks.tts.fs2 import FastSpeech2Task
 from modules.fastspeech.pe import PitchExtractor
 import utils

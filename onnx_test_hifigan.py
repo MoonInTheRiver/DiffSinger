@@ -2,7 +2,7 @@
 
 import os
 import sys
-import inference.svs.ds_e2e as e2e
+import inference.ds_e2e as e2e
 from utils.audio import save_wav
 from utils.hparams import set_hparams, hparams
 
@@ -13,9 +13,9 @@ root_dir = os.path.dirname(os.path.abspath(__file__))
 os.environ['PYTHONPATH'] = f'"{root_dir}"'
 
 sys.argv = [
-    f'{root_dir}/inference/svs/ds_e2e.py',
+    f'{root_dir}/inference/ds_e2e.py',
     '--config',
-    f'{root_dir}/usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml',
+    f'{root_dir}/configs/midi/e2e/opencpop/ds100_adj_rel.yaml',
     '--exp_name',
     '0228_opencpop_ds100_rel'
 ]

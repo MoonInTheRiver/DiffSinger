@@ -11,7 +11,7 @@ a) Download and extract PopCS, then create a link to the dataset folder: `ln -s 
 b) Run the following scripts to pack the dataset for training/inference.
 ```sh
 export PYTHONPATH=.
-CUDA_VISIBLE_DEVICES=0 python data_gen/tts/bin/binarize.py --config usr/configs/popcs_ds_beta6.yaml
+CUDA_VISIBLE_DEVICES=0 python data_gen/binarize.py --config configs/popcs_ds_beta6.yaml
 # `data/binary/popcs-pmf0` will be generated.
 ```
 
@@ -28,21 +28,21 @@ First, you need a pre-trained FFT-Singer checkpoint. You can use the [pre-traine
 
 ```sh
 # First, train fft-singer;
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/popcs_fs2.yaml --exp_name popcs_fs2_pmf0_1230 --reset
+CUDA_VISIBLE_DEVICES=0 python run.py --config configs/popcs_fs2.yaml --exp_name popcs_fs2_pmf0_1230 --reset
 # Then, infer fft-singer;
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/popcs_fs2.yaml --exp_name popcs_fs2_pmf0_1230 --reset --infer 
+CUDA_VISIBLE_DEVICES=0 python run.py --config configs/popcs_fs2.yaml --exp_name popcs_fs2_pmf0_1230 --reset --infer 
 ```
 
 Then, to train DiffSinger, run:
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/popcs_ds_beta6_offline.yaml --exp_name popcs_ds_beta6_offline_pmf0_1230 --reset
+CUDA_VISIBLE_DEVICES=0 python run.py --config configs/popcs_ds_beta6_offline.yaml --exp_name popcs_ds_beta6_offline_pmf0_1230 --reset
 ```
 
-Remember to adjust the "fs2_ckpt" parameter in `usr/configs/popcs_ds_beta6_offline.yaml` to fit your path.
+Remember to adjust the "fs2_ckpt" parameter in `configs/popcs_ds_beta6_offline.yaml` to fit your path.
 
 ### 3. Inference Example
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/popcs_ds_beta6_offline.yaml --exp_name popcs_ds_beta6_offline_pmf0_1230 --reset --infer
+CUDA_VISIBLE_DEVICES=0 python run.py --config configs/popcs_ds_beta6_offline.yaml --exp_name popcs_ds_beta6_offline_pmf0_1230 --reset --infer
 ```
 
 We also provide:

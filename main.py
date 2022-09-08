@@ -8,7 +8,7 @@ import numpy as np
 import torch
 
 from crossfade import cross_fade
-from inference.svs.ds_e2e import DiffSingerE2EInfer
+from inference.ds_e2e import DiffSingerE2EInfer
 from utils.audio import save_wav
 from utils.hparams import set_hparams, hparams
 
@@ -39,9 +39,9 @@ with open(args.proj, 'r', encoding='utf-8') as f:
     params = json.load(f)
 
 sys.argv = [
-    f'{root_dir}/inference/svs/ds_e2e.py',
+    f'{root_dir}/inference/ds_e2e.py',
     '--config',
-    f'{root_dir}/usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml',
+    f'{root_dir}/configs/midi/e2e/opencpop/ds100_adj_rel.yaml',
     '--exp_name',
     exp
 ]

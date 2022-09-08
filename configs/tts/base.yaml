@@ -9,7 +9,7 @@ processed_data_dir: ''
 binary_data_dir: ''
 dict_dir: ''
 pre_align_cls: ''
-binarizer_cls: data_gen.tts.base_binarizer.BaseBinarizer
+binarizer_cls: basics.base_binarizer.BaseBinarizer
 pre_align_args:
   use_tone: true # for ZH
   forced_align: mfa

@@ -24,7 +24,7 @@ b) Run the following scripts to pack the dataset for training/inference.
 
 ```sh
 export PYTHONPATH=.
-CUDA_VISIBLE_DEVICES=0 python data_gen/tts/bin/binarize.py --config usr/configs/midi/cascade/opencs/aux_rel.yaml
+CUDA_VISIBLE_DEVICES=0 python data_gen/binarize.py --config configs/midi/cascade/opencs/aux_rel.yaml
 
 # `data/binary/opencpop-midi-dp` will be generated.
 ```
@@ -60,12 +60,12 @@ export MY_DS_EXP_NAME=0228_opencpop_ds100_rel
 
 ### 2. Training Example
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml --exp_name $MY_DS_EXP_NAME --reset  
+CUDA_VISIBLE_DEVICES=0 python run.py --config configs/midi/e2e/opencpop/ds100_adj_rel.yaml --exp_name $MY_DS_EXP_NAME --reset  
 ```
 
 ### 3. Inference from packed test set
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml --exp_name $MY_DS_EXP_NAME --reset --infer
+CUDA_VISIBLE_DEVICES=0 python run.py --config configs/midi/e2e/opencpop/ds100_adj_rel.yaml --exp_name $MY_DS_EXP_NAME --reset --infer
 ```
 
 We also provide:
@@ -77,7 +77,7 @@ Remember to put the pre-trained models in `checkpoints` directory.
 
 ### 4. Inference from raw inputs
 ```sh
-python inference/svs/ds_e2e.py --config usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml --exp_name $MY_DS_EXP_NAME
+python inference/ds_e2e.py --config configs/midi/e2e/opencpop/ds100_adj_rel.yaml --exp_name $MY_DS_EXP_NAME
 ```
 Raw inputs:
 ```

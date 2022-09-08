@@ -4,7 +4,7 @@ import matplotlib
 
 from utils.pl_utils import data_loader
 from utils.training_utils import RSQRTSchedule
-from vocoders.base_vocoder import get_vocoder_cls, BaseVocoder
+from src.vocoders.base_vocoder import get_vocoder_cls, BaseVocoder
 from modules.fastspeech.pe import PitchExtractor
 
 matplotlib.use('Agg')
@@ -13,7 +13,7 @@ import numpy as np
 from tqdm import tqdm
 import torch.distributed as dist
 
-from tasks.base_task import BaseTask
+from basics.base_task import BaseTask
 from utils.hparams import hparams
 from utils.text_encoder import TokenTextEncoder
 import json

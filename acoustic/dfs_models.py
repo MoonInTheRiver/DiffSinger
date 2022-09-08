@@ -1,4 +1,4 @@
-from usr.diff.shallow_diffusion_tts import GaussianDiffusion
+from src.diff.shallow_diffusion_tts import GaussianDiffusion
 
 import torch
 

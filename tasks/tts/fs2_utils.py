@@ -11,7 +11,7 @@ import torch.utils.data
 from utils.indexed_datasets import IndexedDataset
 from utils.pitch_utils import norm_interp_f0
 import numpy as np
-from tasks.base_task import BaseDataset
+from basics.base_task import BaseDataset
 import torch
 import torch.optim
 import torch.utils.data
@@ -156,7 +156,7 @@ class FastSpeechDataset(BaseDataset):
         sizes = []
         items = []
 
-        binarizer_cls = hparams.get("binarizer_cls", 'data_gen.tts.base_binarizerr.BaseBinarizer')
+        binarizer_cls = hparams.get("binarizer_cls", 'basics.base_binarizer.BaseBinarizer')
         pkg = ".".join(binarizer_cls.split(".")[:-1])
         cls_name = binarizer_cls.split(".")[-1]
         binarizer_cls = getattr(importlib.import_module(pkg), cls_name)

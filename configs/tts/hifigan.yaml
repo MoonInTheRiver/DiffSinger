@@ -1,5 +1,5 @@
 base_config: configs/tts/pwg.yaml
-task_cls: tasks.vocoder.hifigan.HifiGanTask
+task_cls: src.vocoder.hifigan.HifiGanTask
 resblock: "1"
 adam_b1: 0.8
 adam_b2: 0.99

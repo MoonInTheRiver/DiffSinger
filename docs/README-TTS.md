@@ -8,17 +8,17 @@
 ### 1. Preparation
 
 #### Data Preparation
-a) Download and extract the [LJ Speech dataset](https://keithito.com/LJ-Speech-Dataset/), then create a link to the dataset folder: `ln -s /xxx/LJSpeech-1.1/ data/raw/`
+a) Download and extract the [LJ Speech dataset](https://keithito.com/LJ-Speech-Dataset/), then create a link to the dataset folder: `ln -s /xxx/LJSpeech-1.1/ tts/data/raw/`
 
-b) Download and Unzip the [ground-truth duration](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/mfa_outputs.tar) extracted by [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/releases/download/v1.0.1/montreal-forced-aligner_linux.tar.gz):  `tar -xvf mfa_outputs.tar; mv mfa_outputs data/processed/ljspeech/`
+b) Download and Unzip the [ground-truth duration](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/mfa_outputs.tar) extracted by [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/releases/download/v1.0.1/montreal-forced-aligner_linux.tar.gz):  `tar -xvf mfa_outputs.tar; mv mfa_outputs tts/data/processed/ljspeech/`
 
 c) Run the following scripts to pack the dataset for training/inference.
 
 ```sh
 export PYTHONPATH=.
-CUDA_VISIBLE_DEVICES=0 python data_gen/tts/bin/binarize.py --config configs/tts/lj/fs2.yaml
+CUDA_VISIBLE_DEVICES=0 python data_gen/binarize.py --config configs/tts/lj/fs2.yaml
 
-# `data/binary/ljspeech` will be generated.
+# `tts/data/binary/raw/` will be generated.
 ```
 
 #### Vocoder Preparation
@@ -29,19 +29,19 @@ Please unzip this file into `checkpoints` before training your acoustic model.
 
 First, you need a pre-trained FastSpeech2 checkpoint. You can use the [pre-trained model](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/fs2_lj_1.zip), or train FastSpeech2 from scratch, run:
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config configs/tts/lj/fs2.yaml --exp_name fs2_lj_1 --reset
+CUDA_VISIBLE_DEVICES=0 python run.py --config configs/tts/lj/fs2.yaml --exp_name fs2_lj_1 --reset
 ```
 Then, to train DiffSpeech, run:
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/lj_ds_beta6.yaml --exp_name lj_ds_beta6_1213 --reset
+CUDA_VISIBLE_DEVICES=0 python run.py --config configs/lj_ds_beta6.yaml --exp_name lj_ds_beta6_1213 --reset
 ```
 
-Remember to adjust the "fs2_ckpt" parameter in `usr/configs/lj_ds_beta6.yaml` to fit your path.
+Remember to adjust the "fs2_ckpt" parameter in `configs/lj_ds_beta6.yaml` to fit your path.
 
 ### 3. Inference Example
 
 ```sh
-CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/lj_ds_beta6.yaml --exp_name lj_ds_beta6_1213 --reset --infer
+CUDA_VISIBLE_DEVICES=0 python run.py --config configs/lj_ds_beta6.yaml --exp_name lj_ds_beta6_1213 --reset --infer
 ```
 
 We also provide:

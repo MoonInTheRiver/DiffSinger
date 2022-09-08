@@ -1,7 +1,7 @@
 import re
 import jieba
 from pypinyin import pinyin, Style
-from data_gen.tts.data_gen_utils import PUNCS
+from data_gen.data_gen_utils import PUNCS
 from data_gen.tts.txt_processors import zh
 from g2pM import G2pM
 

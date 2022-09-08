@@ -1,5 +1,5 @@
 import re
-from data_gen.tts.data_gen_utils import PUNCS
+from data_gen.data_gen_utils import PUNCS
 from g2p_en import G2p
 import unicodedata
 from g2p_en.expand import normalize_numbers

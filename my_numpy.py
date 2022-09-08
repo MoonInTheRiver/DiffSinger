@@ -11,7 +11,7 @@ import sys
 
 import librosa
 
-from inference.svs.opencpop.map import cpop_pinyin2ph_func
+from inference.opencpop.map import cpop_pinyin2ph_func
 
 from acoustic.tmp_audio import save_wav
 from acoustic.tmp_hparams import set_hparams, hparams
@@ -407,9 +407,9 @@ provider = ('CUDAExecutionProvider', {
 
 
 sys.argv = [
-    f'{root_dir}/inference/svs/ds_e2e.py',
+    f'{root_dir}/inference/ds_e2e.py',
     '--config',
-    f'{root_dir}/usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml',
+    f'{root_dir}/configs/midi/e2e/opencpop/ds100_adj_rel.yaml',
     '--exp_name',
     '0228_opencpop_ds100_rel'
 ]

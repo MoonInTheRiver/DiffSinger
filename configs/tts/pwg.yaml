@@ -1,5 +1,5 @@
 base_config: configs/tts/base.yaml
-task_cls: tasks.vocoder.pwg.PwgTask
+task_cls: src.vocoder.pwg.PwgTask
 
 binarization_args:
   with_wav: true

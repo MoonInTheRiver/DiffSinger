@@ -6,7 +6,7 @@ import sys
 import traceback
 import zmq
 
-from inference.svs.ds_e2e import DiffSingerE2EInfer
+from inference.ds_e2e import DiffSingerE2EInfer
 
 notedict={
     0:"C",
@@ -110,9 +110,9 @@ def acoustic(ustpath:str):
 #为了方便调试，把argv配置放外面
 root_dir = os.path.dirname(__file__)
 sys.argv = [
-f'{root_dir}/inference/svs/ds_e2e.py',
+f'{root_dir}/inference/ds_e2e.py',
 '--config',
-f'{root_dir}/usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml',
+f'{root_dir}/configs/midi/e2e/opencpop/ds100_adj_rel.yaml',
 '--exp_name',
 '0228_opencpop_ds100_rel']
 
