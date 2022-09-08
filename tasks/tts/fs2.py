@@ -4,7 +4,7 @@ matplotlib.use('Agg')
 
 from utils import audio
 import matplotlib.pyplot as plt
-from data_gen.tts.data_gen_utils import get_pitch
+from data_gen.tts.data_gen_utils import get_pitch_parselmouth
 from tasks.tts.fs2_utils import FastSpeechDataset
 from utils.cwt import cwt2f0
 from utils.pl_utils import data_loader
@@ -433,7 +433,7 @@ class FastSpeech2Task(TtsTask):
                         import matplotlib.pyplot as plt
                         # f0_pred_, _ = get_pitch(wav_pred, mel_pred, hparams)
                         f0_pred_ = f0_pred
-                        f0_gt_, _ = get_pitch(wav_gt, mel_gt, hparams)
+                        f0_gt_, _ = get_pitch_parselmouth(wav_gt, mel_gt, hparams)
                         fig = plt.figure()
                         plt.plot(f0_pred_, label=r'$f0_P$')
                         plt.plot(f0_gt_, label=r'$f0_G$')
@@ -479,7 +479,7 @@ class FastSpeech2Task(TtsTask):
             plt.plot(pred_f0, c='white', linewidth=1, alpha=0.6)
             plt.plot(gt_f0, c='red', linewidth=1, alpha=0.6)
         else:
-            f0, _ = get_pitch(wav_out, mel, hparams)
+            f0, _ = get_pitch_parselmouth(wav_out, mel, hparams)
             f0 = (f0 - 100) / (800 - 100) * 80 * (f0 > 0)
             plt.plot(f0, c='white', linewidth=1, alpha=0.6)
         if mel2ph is not None and str_phs is not None:

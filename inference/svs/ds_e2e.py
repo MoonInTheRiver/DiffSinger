@@ -37,19 +37,19 @@ class DiffSingerE2EInfer(BaseSVSInfer):
     def preprocess_phoneme_level_input(self, inp):
         ph_seq, note_lst, midi_dur_lst, is_slur = super().preprocess_phoneme_level_input(inp)
 
-        # add support for user-defined phoneme duration
+        # add support for user-defined phone duration
         ph_dur = None
         if inp['ph_dur'] is not None:
             ph_dur = np.array(inp['ph_dur'].split(),'float')
         else:
-            print('Automatic phoneme duration mode')
+            print('Automatic phone duration mode')
         
         return ph_seq, note_lst, midi_dur_lst, is_slur, ph_dur
         
     def input_to_batch(self, item):
         batch = super().input_to_batch(item)
         
-        # feed user-defined phoneme duration to a module called LengthRegular
+        # feed user-defined phone duration to a module called LengthRegular
         # the output *mel2ph* will be used by FastSpeech
         # note: LengthRegular is not a neural network, only FastSpeech is. (see https://arxiv.org/abs/1905.09263)
         mel2ph = None

@@ -7,7 +7,7 @@ import traceback
 import json
 from resemblyzer import VoiceEncoder
 from tqdm import tqdm
-from data_gen.tts.data_gen_utils import get_mel2ph, get_pitch, build_phone_encoder
+from data_gen.tts.data_gen_utils import get_mel2ph, get_pitch_parselmouth, build_phone_encoder
 from utils.hparams import set_hparams, hparams
 import numpy as np
 from utils.indexed_datasets import IndexedDatasetBuilder
@@ -215,7 +215,7 @@ class BaseBinarizer:
 
     @staticmethod
     def get_pitch(wav, mel, res):
-        f0, pitch_coarse = get_pitch(wav, mel, hparams)
+        f0, pitch_coarse = get_pitch_parselmouth(wav, mel, hparams)
         if sum(f0) == 0:
             raise BinarizationError("Empty f0")
         res['f0'] = f0

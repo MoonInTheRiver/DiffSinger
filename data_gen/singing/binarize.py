@@ -17,7 +17,7 @@ import torch
 from textgrid import TextGrid
 
 from utils.hparams import hparams
-from data_gen.tts.data_gen_utils import build_phone_encoder, get_pitch
+from data_gen.tts.data_gen_utils import build_phone_encoder, get_pitch_parselmouth
 from utils.pitch_utils import f0_to_coarse
 from data_gen.tts.base_binarizer import BaseBinarizer, BinarizationError
 from data_gen.tts.binarizer_zh import ZhBinarizer
@@ -232,7 +232,7 @@ class MidiSingingBinarizer(SingingBinarizer):
         res['pitch_midi'].shape, res['midi_dur'].shape, res['is_slur'].shape)
 
         # gt f0.
-        gt_f0, gt_pitch_coarse = get_pitch(wav, spec, hparams)
+        gt_f0, gt_pitch_coarse = get_pitch_parselmouth(wav, spec, hparams)
         if sum(gt_f0) == 0:
             raise BinarizationError("Empty **gt** f0")
         res['f0'] = gt_f0
@@ -361,7 +361,7 @@ class OpencpopBinarizer(MidiSingingBinarizer):
         # res['pitch'] = pitch_coarse
 
         # gt f0.
-        gt_f0, gt_pitch_coarse = get_pitch(wav, spec, hparams)
+        gt_f0, gt_pitch_coarse = get_pitch_parselmouth(wav, spec, hparams)
         if sum(gt_f0) == 0:
             raise BinarizationError("Empty **gt** f0")
         res['f0'] = gt_f0
