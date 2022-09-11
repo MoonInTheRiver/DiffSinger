@@ -16,6 +16,7 @@ from modules.diffsinger_midi.fs2 import FastSpeech2MIDI
 from utils.hparams import hparams
 
 
+
 def exists(x):
     return x is not None
 
@@ -69,8 +70,7 @@ beta_schedule = {
 
 class GaussianDiffusion(nn.Module):
     def __init__(self, phone_encoder, out_dims, denoise_fn,
-                 timesteps=1000, K_step=1000, loss_type=hparams.get('diff_loss_type', 'l1'), betas=None, spec_min=None,
-                 spec_max=None):
+                 timesteps=1000, K_step=1000, loss_type=hparams.get('diff_loss_type', 'l1'), betas=None, spec_min=None, spec_max=None):
         super().__init__()
         self.denoise_fn = denoise_fn
         if hparams.get('use_midi') is not None and hparams['use_midi']:
@@ -173,10 +173,7 @@ class GaussianDiffusion(nn.Module):
 
         def get_x_pred(x, noise_t, t):
             a_t = extract(self.alphas_cumprod, t, x.shape)
-            if t[0] < interval:
-                a_prev = torch.ones_like(a_t)
-            else:
-                a_prev = extract(self.alphas_cumprod, t - interval, x.shape)
+            a_prev = extract(self.alphas_cumprod, torch.max(t-interval, torch.zeros_like(t)), x.shape)
             a_t_sq, a_prev_sq = a_t.sqrt(), a_prev.sqrt()
 
             x_delta = (a_prev - a_t) * ((1 / (a_t_sq * (a_t_sq + a_prev_sq))) * x - 1 / (a_t_sq * (((1 - a_prev) * a_t).sqrt() + ((1 - a_t) * a_prev).sqrt())) * noise_t)
@@ -189,7 +186,7 @@ class GaussianDiffusion(nn.Module):
 
         if len(noise_list) == 0:
             x_pred = get_x_pred(x, noise_pred, t)
-            noise_pred_prev = self.denoise_fn(x_pred, torch.max(t-interval, torch.zeros_like(t)), cond=cond)
+            noise_pred_prev = self.denoise_fn(x_pred, max(t-interval, 0), cond=cond)
             noise_pred_prime = (noise_pred + noise_pred_prev) / 2
         elif len(noise_list) == 1:
             noise_pred_prime = (3 * noise_pred - noise_list[-1]) / 2
@@ -257,10 +254,17 @@ class GaussianDiffusion(nn.Module):
                 print('===> gaussion start.')
                 shape = (cond.shape[0], 1, self.mel_bins, cond.shape[2])
                 x = torch.randn(shape, device=device)
-            self.noise_list = deque(maxlen=4)
-            iteration_interval = 5
-            for i in tqdm(reversed(range(0, t, iteration_interval)), desc='sample time step', total=t):
-                x = self.p_sample_plms(x, torch.full((b,), i, device=device, dtype=torch.long), iteration_interval, cond)
+
+            if hparams.get('pndm_speedup'):
+                self.noise_list = deque(maxlen=4)
+                iteration_interval = hparams['pndm_speedup']
+                for i in tqdm(reversed(range(0, t, iteration_interval)), desc='sample time step',
+                              total=t // iteration_interval):
+                    x = self.p_sample_plms(x, torch.full((b,), i, device=device, dtype=torch.long), iteration_interval,
+                                           cond)
+            else:
+                for i in tqdm(reversed(range(0, t)), desc='sample time step', total=t):
+                    x = self.p_sample(x, torch.full((b,), i, device=device, dtype=torch.long), cond)
             x = x[:, 0].transpose(1, 2)
             if mel2ph is not None:  # for singing
                 ret['mel_out'] = self.denorm_spec(x) * ((mel2ph > 0).float()[:, :, None])
