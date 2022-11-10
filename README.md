@@ -8,16 +8,6 @@
 
 This repository is the official PyTorch implementation of our AAAI-2022 [paper](https://arxiv.org/abs/2105.02446), in which we propose DiffSinger (for Singing-Voice-Synthesis) and DiffSpeech (for Text-to-Speech).
  
-<table style="width:100%">
-  <tr>
-    <th>DiffSinger/DiffSpeech at training</th>
-    <th>DiffSinger/DiffSpeech at inference</th>
-  </tr>
-  <tr>
-    <td><img src="resources/model_a.png" alt="Training" height="300"></td>
-    <td><img src="resources/model_b.png" alt="Inference" height="300"></td>
-  </tr>
-</table>
 
 :tada: :tada: :tada: **Updates**:
  - Sep.11, 2022: :electric_plug: [DiffSinger-PN](docs/README-SVS-opencpop-pndm.md). Add plug-in [PNDM](https://arxiv.org/abs/2202.09778), ICLR 2022 in our laboratory, to accelerate DiffSinger freely.
@@ -46,6 +36,17 @@ or pip install -r requirements_3090.txt   (GPU 3090, CUDA 11.4)
 ## Documents
 - [Run DiffSpeech (TTS version)](docs/README-TTS.md).
 - [Run DiffSinger (SVS version)](docs/README-SVS.md).
+
+## Overview
+| Mel Pipeline                                                                                | Dataset                                                  | Pitch Input       | F0 Prediction |   Acceleration Method       | Vocoder                       |
+| ------------------------------------------------------------------------------------------- | ---------------------------------------------------------| ----------------- | ------------- | --------------------------- | ----------------------------- |
+| [DiffSpeech (Text->F0, Text+F0->Mel, Mel->Wav)](docs/README-TTS.md)                         | [Ljspeech](https://keithito.com/LJ-Speech-Dataset/)      | None              | Explicit      | Shallow Diffusion           | NSF-HiFiGAN                   |
+| [DiffSinger (Lyric+F0->Mel, Mel->Wav)](docs/README-SVS-popcs.md)                            | [PopCS](https://github.com/MoonInTheRiver/DiffSinger)    | Ground-Truth F0   | None          | Shallow Diffusion           | NSF-HiFiGAN                   |
+| [DiffSinger (Lyric+MIDI->F0, Lyric+F0->Mel, Mel->Wav)](docs/README-SVS-opencpop-cascade.md) | [OpenCpop](https://wenet.org.cn/opencpop/)               | MIDI              | Explicit      | Shallow Diffusion           | NSF-HiFiGAN                   |
+| [FFT-Singer (Lyric+MIDI->F0, Lyric+F0->Mel, Mel->Wav)](docs/README-SVS-opencpop-cascade.md) | [OpenCpop](https://wenet.org.cn/opencpop/)               | MIDI              | Explicit      | Invalid                     | NSF-HiFiGAN                   |
+| [DiffSinger (Lyric+MIDI->Mel, Mel->Wav)](docs/README-SVS-opencpop-e2e.md)                   | [OpenCpop](https://wenet.org.cn/opencpop/)               | MIDI              | Implicit      | None                        | Pitch-Extractor + NSF-HiFiGAN |
+| [DiffSinger+PNDM (Lyric+MIDI->Mel, Mel->Wav)](docs/README-SVS-opencpop-pndm.md)             | [OpenCpop](https://wenet.org.cn/opencpop/)               | MIDI              | Implicit      | PLMS                        | Pitch-Extractor + NSF-HiFiGAN |
+ 
 
 ## Tensorboard
 ```sh
