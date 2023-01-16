@@ -74,6 +74,7 @@ CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/e2e/opencpo
 ```sh
 CUDA_VISIBLE_DEVICES=0 python tasks/run.py --config usr/configs/midi/e2e/opencpop/ds1000.yaml --exp_name $MY_DS_EXP_NAME --reset --infer
 ```
+Inference results will be saved in `./checkpoints/MY_DS_EXP_NAME/generated_` by default.
 
 We also provide:
  - the pre-trained model of DiffSinger;
@@ -104,7 +105,7 @@ inp = {
         'input_type': 'phoneme'
     }  # input like Opencpop dataset.
 ```
-
+Here the inference results will be saved in `./infer_out` by default.
 ### 5. Some issues.
 a) the HifiGAN-Singing is trained on our [vocoder dataset](https://dl.acm.org/doi/abs/10.1145/3474085.3475437) and the training set of [PopCS](https://arxiv.org/abs/2105.02446). Opencpop is the out-of-domain dataset (unseen speaker). This may cause the deterioration of audio quality, and we are considering fine-tuning this vocoder on the training set of Opencpop.
 
