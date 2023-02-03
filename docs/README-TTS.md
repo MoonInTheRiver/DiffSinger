@@ -2,8 +2,8 @@
 [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2105.02446)
 [![GitHub Stars](https://img.shields.io/github/stars/MoonInTheRiver/DiffSinger?style=social)](https://github.com/MoonInTheRiver/DiffSinger)
 [![downloads](https://img.shields.io/github/downloads/MoonInTheRiver/DiffSinger/total.svg)](https://github.com/MoonInTheRiver/DiffSinger/releases)
- | [Interactive🤗 TTS](https://huggingface.co/spaces/NATSpeech/DiffSpeech)
- 
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-blue?label=TTSDemo)](https://huggingface.co/spaces/NATSpeech/DiffSpeech) 
+
 ## DiffSpeech (TTS)
 ### 1. Preparation
 
