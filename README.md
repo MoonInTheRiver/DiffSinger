@@ -53,13 +53,14 @@ This repository is the official PyTorch implementation of our AAAI-2022 [paper](
 ## Overview
 | Mel Pipeline                                                                                | Dataset                                                  | Pitch Input       | F0 Prediction |   Acceleration Method       | Vocoder                       |
 | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------| ----------------- | ------------- | --------------------------- | ----------------------------- |
-| [DiffSpeech (Text->F0, Text+F0->Mel, Mel->Wav)](docs/README-TTS.md)                         | [Ljspeech](https://keithito.com/LJ-Speech-Dataset/)      | None              | Explicit      | Shallow Diffusion           | NSF-HiFiGAN                   |
+| [DiffSpeech (Text->F0, Text+F0->Mel, Mel->Wav)](docs/README-TTS.md)                         | [Ljspeech](https://keithito.com/LJ-Speech-Dataset/)      | None              | Explicit      | Shallow Diffusion           | HiFiGAN                       |
 | [DiffSinger (Lyric+F0->Mel, Mel->Wav)](docs/README-SVS-popcs.md)                            | [PopCS](https://github.com/MoonInTheRiver/DiffSinger)    | Ground-Truth F0   | None          | Shallow Diffusion           | NSF-HiFiGAN                   |
 | [DiffSinger (Lyric+MIDI->F0, Lyric+F0->Mel, Mel->Wav)](docs/README-SVS-opencpop-cascade.md) | [OpenCpop](https://wenet.org.cn/opencpop/)               | MIDI              | Explicit      | Shallow Diffusion           | NSF-HiFiGAN                   |
 | [FFT-Singer (Lyric+MIDI->F0, Lyric+F0->Mel, Mel->Wav)](docs/README-SVS-opencpop-cascade.md) | [OpenCpop](https://wenet.org.cn/opencpop/)               | MIDI              | Explicit      | Invalid                     | NSF-HiFiGAN                   |
 | [DiffSinger (Lyric+MIDI->Mel, Mel->Wav)](docs/README-SVS-opencpop-e2e.md)                   | [OpenCpop](https://wenet.org.cn/opencpop/)               | MIDI              | Implicit      | None                        | Pitch-Extractor + NSF-HiFiGAN |
 | [DiffSinger+PNDM (Lyric+MIDI->Mel, Mel->Wav)](docs/README-SVS-opencpop-pndm.md)             | [OpenCpop](https://wenet.org.cn/opencpop/)               | MIDI              | Implicit      | PLMS                        | Pitch-Extractor + NSF-HiFiGAN |
- 
+| [DiffSpeech+PNDM (Text->Mel, Mel->Wav)](docs/README-TTS-pndm.md)                   | [Ljspeech](https://keithito.com/LJ-Speech-Dataset/)      | None              | Implicit      | PLMS                        | HiFiGAN                       |
+
 
 ## Tensorboard
 ```sh

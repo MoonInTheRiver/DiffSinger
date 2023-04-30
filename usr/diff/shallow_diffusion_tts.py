@@ -173,7 +173,10 @@ class GaussianDiffusion(nn.Module):
 
         def get_x_pred(x, noise_t, t):
             a_t = extract(self.alphas_cumprod, t, x.shape)
-            a_prev = extract(self.alphas_cumprod, torch.max(t-interval, torch.zeros_like(t)), x.shape)
+            if t[0] < interval:
+                a_prev = torch.ones_like(a_t)
+            else:
+                a_prev = extract(self.alphas_cumprod, torch.max(t-interval, torch.zeros_like(t)), x.shape)
             a_t_sq, a_prev_sq = a_t.sqrt(), a_prev.sqrt()
 
             x_delta = (a_prev - a_t) * ((1 / (a_t_sq * (a_t_sq + a_prev_sq))) * x - 1 / (a_t_sq * (((1 - a_prev) * a_t).sqrt() + ((1 - a_t) * a_prev).sqrt())) * noise_t)

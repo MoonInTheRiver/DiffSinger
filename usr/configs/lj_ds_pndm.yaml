@@ -1,0 +1,17 @@
+base_config:
+  - ./lj_ds_beta6.yaml
+
+fs2_ckpt: ''
+gaussian_start: True
+max_beta: 0.02
+timesteps: 1000
+K_step: 1000
+pndm_speedup: 10
+
+pitch_type: frame
+use_pitch_embed: false   #  using diffusion to model pitch curve
+lambda_f0: 0.
+lambda_uv: 0.
+#rel_pos: true
+
+max_updates: 320000
