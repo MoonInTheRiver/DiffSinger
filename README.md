@@ -11,13 +11,13 @@ This repository is the official PyTorch implementation of our AAAI-2022 [paper](
 
 :tada: :tada: :tada: **Updates**:
  - Sep.11, 2022: :electric_plug: [DiffSinger-PN](docs/README-SVS-opencpop-pndm.md). Add plug-in [PNDM](https://arxiv.org/abs/2202.09778), ICLR 2022 in our laboratory, to accelerate DiffSinger freely.
- - Jul.27, 2022: Update documents for [SVS](docs/README-SVS.md). Add easy inference [A](docs/README-SVS-opencpop-cascade.md#4-inference-from-raw-inputs) & [B](docs/README-SVS-opencpop-e2e.md#4-inference-from-raw-inputs); Add Interactive SVS running on [HuggingFace🤗 SVS](https://huggingface.co/spaces/Silentlin/DiffSinger).
+ - Jul.27, 2022: Update documents for [SVS](docs/README-SVS.md). Add easy inference [A](docs/README-SVS-opencpop-cascade.md#4-inference-from-raw-inputs) & [B](docs/README-SVS-opencpop-e2e.md#4-inference-from-raw-inputs); Add Interactive SVS running on [Hugging Face🤗 SVS](https://huggingface.co/spaces/Silentlin/DiffSinger).
  - Mar.2, 2022: MIDI-B-version.
  - Mar.1, 2022: [NeuralSVB](https://github.com/MoonInTheRiver/NeuralSVB), for singing voice beautifying, has been released.
  - Feb.13, 2022: [NATSpeech](https://github.com/NATSpeech/NATSpeech), the improved code framework, which contains the implementations of DiffSpeech and our NeurIPS-2021 work [PortaSpeech](https://openreview.net/forum?id=xmJsuh8xlq) has been released. 
  - Jan.29, 2022: support MIDI-A-version SVS.
  - Jan.13, 2022: support SVS, release PopCS dataset.
- - Dec.19, 2021: support TTS. [HuggingFace🤗 TTS](https://huggingface.co/spaces/NATSpeech/DiffSpeech)
+ - Dec.19, 2021: support TTS. [Hugging Face🤗 TTS](https://huggingface.co/spaces/NATSpeech/DiffSpeech)
  
 :rocket: **News**: 
  - Feb.24, 2022: Our new work, NeuralSVB was accepted by ACL-2022 [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2202.13277). [Demo Page](https://neuralsvb.github.io).
