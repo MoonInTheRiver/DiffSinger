@@ -29,7 +29,7 @@ This repository is the official PyTorch implementation of our AAAI-2022 [paper](
 1. If you want to use env of anaconda:
     ```sh
     conda create -n your_env_name python=3.8
-    source activate your_env_name 
+    conda activate your_env_name 
     pip install -r requirements_2080.txt   (GPU 2080Ti, CUDA 10.2)
     or pip install -r requirements_3090.txt   (GPU 3090, CUDA 11.4)
     ```
