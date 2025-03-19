@@ -1,8 +1,8 @@
 ## DiffSinger (SVS version)
 
 ### 0. Data Acquirement
-- See in [apply_form](https://github.com/MoonInTheRiver/DiffSinger/blob/master/resources/apply_form.md).
-- Dataset [preview](https://github.com/MoonInTheRiver/DiffSinger/releases/download/pretrain-model/popcs_preview.zip).
+- [Download link](https://drive.google.com/file/d/1uFJmPEUWbzguGBdiuupYvYbBEjopN-Xq/view?usp=sharing).
+- Please note that, if you are using PopCS, it means that you have accepted the terms in [apply_form](https://github.com/MoonInTheRiver/DiffSinger/blob/master/resources/apply_form.md).
 
 ### 1. Preparation
 #### Data Preparation
