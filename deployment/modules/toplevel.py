@@ -180,24 +180,19 @@ class DiffSingerVarianceONNX(DiffSingerVariance):
         smooth_kernel_size = round(hparams['midi_smooth_width'] * hparams['audio_sample_rate'] / hparams['hop_size'])
         self.smooth = SinusoidalSmoothingConv1d(smooth_kernel_size).eval().to(device)
 
-    def embed_frozen_spk(self, encoder_out):
-        if hparams['use_spk_id'] and hasattr(self, 'frozen_spk_embed'):
-            encoder_out += self.frozen_spk_embed
-        return encoder_out
-
     def forward_linguistic_encoder_word(self, tokens, word_div, word_dur, languages=None):
         encoder_out, x_masks = self.fs2.forward_encoder_word(tokens, word_div, word_dur, languages=languages)
-        encoder_out = self.embed_frozen_spk(encoder_out)
         return encoder_out, x_masks
 
     def forward_linguistic_encoder_phoneme(self, tokens, ph_dur, languages=None):
         encoder_out, x_masks = self.fs2.forward_encoder_phoneme(tokens, ph_dur, languages=languages)
-        encoder_out = self.embed_frozen_spk(encoder_out)
         return encoder_out, x_masks
 
     def forward_dur_predictor(
             self, encoder_out, x_masks, ph_midi, word_div=None, word_dur=None, spk_embed=None
     ):
+        if hparams['use_spk_id'] and spk_embed is None and hasattr(self, 'frozen_spk_embed'):
+            spk_embed = self.frozen_spk_embed
         return self.fs2.forward_dur_predictor(
             encoder_out, x_masks, ph_midi,
             word_div=word_div, word_dur=word_dur, spk_embed=spk_embed
@@ -262,8 +257,11 @@ class DiffSingerVarianceONNX(DiffSingerVariance):
                 pitch_cond += self.base_pitch_embed(base_pitch[:, :, None] / 128)
             else:
                 pitch_cond += self.base_pitch_embed(base_pitch[:, :, None])
-        if hparams['use_spk_id'] and spk_embed is not None:
-            pitch_cond += spk_embed
+        if hparams['use_spk_id']:
+            if spk_embed is not None:
+                pitch_cond += spk_embed
+            elif hasattr(self, 'frozen_spk_embed'):
+                pitch_cond += self.frozen_spk_embed
         return pitch_cond, base_pitch
 
     def forward_pitch_reflow(
@@ -294,8 +292,11 @@ class DiffSingerVarianceONNX(DiffSingerVariance):
             for v_name, v_masks in zip(self.variance_prediction_list, non_retake_masks)
         ]
         variance_cond += torch.stack(variance_embeds, dim=-1).sum(-1)
-        if hparams['use_spk_id'] and spk_embed is not None:
-            variance_cond += spk_embed
+        if hparams['use_spk_id']:
+            if spk_embed is not None:
+                variance_cond += spk_embed
+            elif hasattr(self, 'frozen_spk_embed'):
+                variance_cond += self.frozen_spk_embed
         return variance_cond
 
     def forward_variance_reflow(self, variance_cond, steps: int = 10):
