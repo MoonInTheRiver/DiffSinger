@@ -304,7 +304,9 @@ class RhythmRegulator(torch.nn.Module):
         alpha_w = word_dur / word_dur_in.clamp(min=self.eps)  # avoid dividing by zero
         alpha_ph = torch.gather(F.pad(alpha_w, [1, 0]), 1, ph2word)  # [B, T_w] => [B, T_ph]
         ph_dur_out = ph_dur * alpha_ph
-        return ph_dur_out.round().long()
+        # Round cumulative boundaries to avoid accumulating per-phoneme rounding errors.
+        ph_acc = ph_dur_out.cumsum(dim=1).round().long()
+        return torch.diff(ph_acc, dim=1, prepend=ph_acc.new_zeros((ph_acc.shape[0], 1)))
 
 
 class LengthRegulator(torch.nn.Module):
