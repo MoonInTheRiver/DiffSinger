@@ -112,7 +112,7 @@ class FastSpeech2Variance(nn.Module):
                 dur_cond += spk_embed
             if self.dur_arch == 'attn':
                 ph_dur_pred = self.dur_predictor(
-                    dur_cond, x_masks=txt_tokens == PAD_INDEX, infer=infer,
+                    dur_cond, x_masks=txt_tokens == PAD_INDEX,
                     ph2word=ph2word,
                     word_budget=self.dur_word_budget(ph_dur, ph2word, word_dur, infer)
                 )

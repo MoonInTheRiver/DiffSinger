@@ -252,8 +252,6 @@ class VarianceTask(BaseTask):
 
         dur_pred, pitch_pred, variances_pred = output
         if infer:
-            if dur_pred is not None:
-                dur_pred = dur_pred.round().long()
             return dur_pred, pitch_pred, variances_pred  # Tensor, Tensor, Dict[str, Tensor]
         else:
             losses = {}

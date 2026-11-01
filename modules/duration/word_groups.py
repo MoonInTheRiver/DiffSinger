@@ -1,7 +1,6 @@
 """Word-level helpers for duration prediction."""
 
 import torch
-import torch.nn.functional as F
 from torch import Tensor
 
 __all__ = [
@@ -11,7 +10,6 @@ __all__ = [
     "word_distribution",
     "word_log_softmax",
     "word_budget",
-    "allocate_word_frames",
 ]
 
 # Large negative logit used instead of -inf so that empty rows stay finite.
@@ -106,34 +104,3 @@ def word_budget(durations: Tensor, word_ids: Tensor, num_words=None) -> Tensor:
         num_words = word_ids.max()
     shape = durations.shape[0], num_words + 1
     return durations.new_zeros(*shape).scatter_add(1, word_ids, durations)[:, 1:]
-
-
-def allocate_word_frames(prob: Tensor, budget: Tensor, word_ids: Tensor, x_masks: Tensor = None) -> Tensor:
-    """Allocate integer frames by rounding cumulative durations.
-
-    :param prob: [B, T] within-word shares
-    :param budget: [B, T] frame budget per item; constant inside a word
-    :param word_ids: [B, T] word index, 1-based, 0 for padding
-    :param x_masks: [B, T] bool mask, True for padded items
-    :return: [B, T] frame counts
-    """
-    # Accumulate in float32 to limit rounding errors.
-    prob = prob.float()
-    budget = budget.to(torch.float32)
-
-    cumulative = (prob.clamp_min(0.) * budget).cumsum(dim=1)
-    boundary = (cumulative + 0.5).floor()
-
-    next_ids = F.pad(word_ids[:, 1:], [0, 1])
-    word_end = (word_ids != next_ids) & (word_ids > 0)  # [B, T]
-
-    # Pin word-end boundaries to prevent rounding drift between words.
-    end_budget = torch.where(word_end, budget, torch.zeros_like(budget))
-    word_cumulative = end_budget.cumsum(dim=1)  # [B, T]
-    boundary = torch.where(word_end, word_cumulative, boundary)
-
-    previous = torch.cat([boundary.new_zeros(boundary.shape[0], 1), boundary[:, :-1]], dim=1)
-    counts = boundary - previous
-    if x_masks is not None:
-        counts = counts.masked_fill(x_masks.bool(), 0.)
-    return counts
