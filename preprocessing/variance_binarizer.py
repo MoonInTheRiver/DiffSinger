@@ -13,6 +13,7 @@ from basics.base_binarizer import BaseBinarizer, BinarizationError
 from modules.fastspeech.tts_modules import LengthRegulator
 from modules.pe import get_pitch_extractor
 from utils.binarizer_utils import (
+    dur_sec_to_frames,
     get_mel2ph_torch,
     get_energy_librosa,
     get_breathiness,
@@ -279,8 +280,8 @@ class VarianceBinarizer(BaseBinarizer):
         }
 
         ph_dur_sec = torch.FloatTensor(meta_data['ph_dur']).to(self.device)
-        ph_acc = torch.round(torch.cumsum(ph_dur_sec, dim=0) / self.timestep + 0.5).long()
-        ph_dur = torch.diff(ph_acc, dim=0, prepend=torch.LongTensor([0]).to(self.device))
+        ph_dur = dur_sec_to_frames(ph_dur_sec, self.timestep, device=self.device)
+        ph_acc = ph_dur.cumsum(0)  # frame boundaries, also used by the zero-duration fallback
         length = int(ph_acc[-1])
         processed_input['ph_dur'] = ph_dur.cpu().numpy()
         processed_input['length'] = length
@@ -362,8 +363,7 @@ class VarianceBinarizer(BaseBinarizer):
             note_midi = torch.from_numpy(note_midi).to(self.device)
 
             note_dur_sec = torch.FloatTensor(meta_data['note_dur']).to(self.device)
-            note_acc = torch.round(torch.cumsum(note_dur_sec, dim=0) / self.timestep + 0.5).long()
-            note_dur = torch.diff(note_acc, dim=0, prepend=torch.LongTensor([0]).to(self.device))
+            note_dur = dur_sec_to_frames(note_dur_sec, self.timestep, device=self.device)
             processed_input['note_dur'] = note_dur.cpu().numpy()
 
             mel2note = get_mel2ph_torch(

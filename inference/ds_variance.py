@@ -19,7 +19,7 @@ from modules.fastspeech.tts_modules import (
 )
 from modules.toplevel import DiffSingerVariance
 from utils import load_ckpt
-from utils.binarizer_utils import SinusoidalSmoothingConv1d
+from utils.binarizer_utils import SinusoidalSmoothingConv1d, dur_sec_to_frames
 from utils.hparams import hparams
 from utils.infer_utils import resample_align_curve
 from utils.phoneme_utils import load_phoneme_dictionary
@@ -135,9 +135,9 @@ class DiffSingerVarianceInfer(BaseSVSInfer):
         note_rest = torch.from_numpy(note_rest).to(self.device)[None]  # [B=1, T_n]
 
         T_n = note_midi.shape[1]
-        note_dur_sec = torch.from_numpy(np.array([param['note_dur'].split()], np.float32)).to(self.device)  # [B=1, T_n]
-        note_acc = torch.round(torch.cumsum(note_dur_sec, dim=1) / self.timestep + 0.5).long()
-        note_dur = torch.diff(note_acc, dim=1, prepend=note_acc.new_zeros(1, 1))
+        note_dur = dur_sec_to_frames(
+            np.array([param['note_dur'].split()], np.float32), self.timestep, device=self.device
+        )  # [B=1, T_n]
         mel2note = self.lr(note_dur)  # [B=1, T_s]
         T_s = mel2note.shape[1]
 
@@ -164,8 +164,7 @@ class DiffSingerVarianceInfer(BaseSVSInfer):
             ph_dur_sec = torch.from_numpy(
                 np.array([param['ph_dur'].split()], np.float32)
             ).to(self.device)  # [B=1, T_ph]
-            ph_acc = torch.round(torch.cumsum(ph_dur_sec, dim=1) / self.timestep + 0.5).long()
-            ph_dur = torch.diff(ph_acc, dim=1, prepend=ph_acc.new_zeros(1, 1))
+            ph_dur = dur_sec_to_frames(ph_dur_sec, self.timestep, device=self.device)  # [B=1, T_ph]
             mel2ph = self.lr(ph_dur, txt_tokens == 0)
             if mel2ph.shape[1] != T_s:  # Align phones with notes
                 mel2ph = F.pad(mel2ph, [0, T_s - mel2ph.shape[1]], value=mel2ph[0, -1])

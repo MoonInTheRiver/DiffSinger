@@ -5,6 +5,7 @@ import librosa
 import numpy as np
 import parselmouth
 import torch
+from torch.nn import functional as F
 
 from modules.nsf_hifigan.nvSTFT import STFT
 from utils.decomposed_waveform import DecomposedWaveform
@@ -36,11 +37,22 @@ def get_mel_torch(
         return mel_torch.cpu().numpy()
 
 
+def dur_sec_to_frames(dur_sec, timestep, device='cpu'):
+    """Convert durations in seconds into integer frame counts.
+
+    The cumulative sum is rounded only once, so rounding errors do not
+    accumulate across units (phonemes, notes, ...) and the total frame count
+    equals ``round(sum(dur_sec) / timestep)``.
+    """
+    dur_sec = torch.as_tensor(dur_sec, device=device)
+    acc = torch.round(torch.cumsum(dur_sec, dim=-1) / timestep).long()
+    return acc - F.pad(acc, (1, -1))  # same as acc - [0, acc[0], ..., acc[-2]]
+
+
 @torch.no_grad()
-def get_mel2ph_torch(lr, durs, length, timestep, device='cpu'):
-    ph_acc = torch.round(torch.cumsum(durs.to(device), dim=0) / timestep + 0.5).long()
-    ph_dur = torch.diff(ph_acc, dim=0, prepend=torch.LongTensor([0]).to(device))
-    mel2ph = lr(ph_dur[None])[0]
+def get_mel2ph_torch(lr, dur_sec, length, timestep, device='cpu'):
+    dur = dur_sec_to_frames(dur_sec, timestep, device=device)
+    mel2ph = lr(dur[None])[0]
     num_frames = mel2ph.shape[0]
     if num_frames < length:
         mel2ph = torch.cat((mel2ph, torch.full((length - num_frames,), fill_value=mel2ph[-1], device=device)), dim=0)

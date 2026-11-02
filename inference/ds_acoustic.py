@@ -13,6 +13,7 @@ from modules.fastspeech.tts_modules import LengthRegulator
 from modules.toplevel import DiffSingerAcoustic, ShallowDiffusionOutput
 from modules.vocoders.registry import VOCODERS
 from utils import load_ckpt
+from utils.binarizer_utils import dur_sec_to_frames
 from utils.hparams import hparams
 from utils.infer_utils import cross_fade, resample_align_curve, save_wav
 from utils.phoneme_utils import load_phoneme_dictionary
@@ -99,9 +100,9 @@ class DiffSingerAcousticInfer(BaseSVSInfer):
         ]).to(self.device)  # => [B, T_txt]
         batch['tokens'] = txt_tokens
 
-        ph_dur = torch.from_numpy(np.array(param['ph_dur'].split(), np.float32)).to(self.device)
-        ph_acc = torch.round(torch.cumsum(ph_dur, dim=0) / self.timestep + 0.5).long()
-        durations = torch.diff(ph_acc, dim=0, prepend=torch.LongTensor([0]).to(self.device))[None]  # => [B=1, T_txt]
+        durations = dur_sec_to_frames(
+            np.array(param['ph_dur'].split(), np.float32), self.timestep, device=self.device
+        )[None]  # => [B=1, T_txt]
         mel2ph = self.lr(durations, txt_tokens == 0)  # => [B=1, T]
         batch['mel2ph'] = mel2ph
         length = mel2ph.size(1)  # => T
